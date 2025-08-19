@@ -17,7 +17,7 @@ export interface RegisterUserRequest {
   phone_number: string;
 }
 
-export interface ConfirmRegistrationRequest{
+export interface ConfirmRegistrationRequest {
   password: string;
   token: string;
 }
@@ -39,6 +39,7 @@ export interface KidRequest {
   gender: string;
   school: string;
   standard: string;
+  SuccessMessageResponse?: string;
 }
 
 export interface GetKidResponse {
@@ -52,6 +53,7 @@ export interface GetKidResponse {
   created_by: string;
   updated_at: string;
   updated_by: string;
+  SuccessMessageResponse: string;
 }
 
 export interface QuestionRequest {
@@ -135,4 +137,35 @@ export interface ValidationError {
 
 export interface HTTPValidationError {
   detail?: ValidationError[];
+}
+
+// chat apis interface
+export interface ICreateChatResponse {
+  title: string;
+}
+
+export interface IGetChatResponse {
+  status_message: string;
+  data: IGetChat[];
+}
+
+export interface IGetChat {
+  id: number;
+  title: string;
+  created_at: string;
+}
+
+// chat response
+export interface IPostChatRequest {
+  question: string;
+}
+
+export interface IChatResponse {
+  status_message: string;
+  data: IChat;
+}
+
+export interface IChat {
+  id: number ;
+  message: string;
 }

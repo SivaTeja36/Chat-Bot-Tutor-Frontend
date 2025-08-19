@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Container,
   Typography,
@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   Box,
-  Button,
   Avatar,
   IconButton,
   Dialog,
@@ -18,8 +17,9 @@ import {
   LinearProgress,
   Paper,
   CircularProgress,
-  Divider
-} from '@mui/material';
+  Divider,
+  Stack,
+} from "@mui/material";
 import {
   Add,
   Edit,
@@ -27,11 +27,12 @@ import {
   Chat,
   Quiz,
   TrendingUp,
-  Send
-} from '@mui/icons-material';
-import VirtualCharacter from '../../components/VirtualCharacter';
-import { kidsAPI } from '../../services/api';
-import { GetKidResponse, KidRequest } from '../../types/api';
+  Send,
+} from "@mui/icons-material";
+import { kidsAPI } from "../../services/api";
+import { GetKidResponse, KidRequest } from "../../types/api";
+import ChatPage from "./ChatPage";
+import { PmsButton } from "../../components/ui/button";
 
 const Kids = () => {
   const [kids, setKids] = useState<GetKidResponse[]>([]);
@@ -40,15 +41,18 @@ const Kids = () => {
   const [openChatDialog, setOpenChatDialog] = useState(false);
   const [selectedKid, setSelectedKid] = useState<GetKidResponse | null>(null);
   const [newKid, setNewKid] = useState<KidRequest>({
-    name: '',
+    name: "",
     age: 0,
-    gender: '',
-    school: '',
-    standard: ''
+    gender: "",
+    school: "",
+    standard: "",
   });
-  const [question, setQuestion] = useState('');
-  const [chatHistory, setChatHistory] = useState<{question: string, answer: string}[]>([]);
+  const [question, setQuestion] = useState("");
+  const [chatHistory, setChatHistory] = useState<
+    { question: string; answer: string }[]
+  >([]);
   const [askingQuestion, setAskingQuestion] = useState(false);
+  const [kidPage, setKidPage] = useState("kidPage");
 
   const fetchKids = async () => {
     try {
@@ -61,13 +65,12 @@ const Kids = () => {
     }
   };
   useEffect(() => {
-
     fetchKids();
   }, []);
 
   const handleAddKid = () => {
     setSelectedKid(null);
-    setNewKid({ name: '', age: 0, gender: '', school: '', standard: '' });
+    setNewKid({ name: "", age: 0, gender: "", school: "", standard: "" });
     setOpenDialog(true);
   };
 
@@ -78,7 +81,7 @@ const Kids = () => {
       age: kid.age,
       gender: kid.gender,
       school: kid.school,
-      standard: kid.standard
+      standard: kid.standard,
     });
     setOpenDialog(true);
   };
@@ -87,15 +90,15 @@ const Kids = () => {
     try {
       if (selectedKid) {
         await kidsAPI.updateKid(selectedKid.id, newKid);
-        setKids(kids.map(kid => 
-          kid.id === selectedKid.id 
-            ? { ...selectedKid, ...newKid }
-            : kid
-        ));
+        setKids(
+          kids.map((kid) =>
+            kid.id === selectedKid.id ? { ...selectedKid, ...newKid } : kid
+          )
+        );
       } else {
         const response = await kidsAPI.createKid(newKid);
         const createdKid = response.data.data;
-        fetchKids()
+        fetchKids();
         setKids([...kids, createdKid]);
       }
       setOpenDialog(false);
@@ -107,41 +110,47 @@ const Kids = () => {
   const handleDeleteKid = async (kidId: number) => {
     try {
       await kidsAPI.deleteKid(kidId);
-      setKids(kids.filter(kid => kid.id !== kidId));
+      setKids(kids.filter((kid) => kid.id !== kidId));
     } catch (error) {
       console.error("Error deleting kid:", error);
     }
   };
 
-  const handleOpenChatDialog = async (kid: GetKidResponse) => {
-    setSelectedKid(kid);
-    setQuestion('');
-    setOpenChatDialog(true);
-    setAskingQuestion(true);
-    
-    try {
-      // Fetch question history when opening chat dialog
-      const historyResponse = await kidsAPI.getQuestionsHistory(kid.id);
-      
-      if (historyResponse.data && historyResponse.data.data && historyResponse.data.data.length > 0) {
-        // Convert the history response to our chat history format
-        const formattedHistory = historyResponse.data.data.map(item => ({
-          question: item.question,
-          answer: item.answer || 'I processed your question. Let me think about that!'
-        }));
-        
-        setChatHistory(formattedHistory);
-      } else {
-        // If no history, show empty chat
-        setChatHistory([]);
-      }
-    } catch (error) {
-      console.error("Error fetching question history:", error);
-      setChatHistory([]);
-    } finally {
-      setAskingQuestion(false);
-    }
-  };
+  // const handleOpenChatDialog = async (kid: GetKidResponse) => {
+  //   setSelectedKid(kid);
+  //   setQuestion("");
+  //   setOpenChatDialog(true);
+  //   setAskingQuestion(true);
+
+  //   try {
+  //     // Fetch question history when opening chat dialog
+  //     const historyResponse = await kidsAPI.getQuestionsHistory(kid.id);
+
+  //     if (
+  //       historyResponse.data &&
+  //       historyResponse.data.data &&
+  //       historyResponse.data.data.length > 0
+  //     ) {
+  //       // Convert the history response to our chat history format
+  //       const formattedHistory = historyResponse.data.data.map((item) => ({
+  //         question: item.question,
+  //         answer:
+  //           item.answer ||
+  //           "I processed your question. Let me think about that!",
+  //       }));
+
+  //       setChatHistory(formattedHistory);
+  //     } else {
+  //       // If no history, show empty chat
+  //       setChatHistory([]);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching question history:", error);
+  //     setChatHistory([]);
+  //   } finally {
+  //     setAskingQuestion(false);
+  //   }
+  // };
 
   const handleCloseChat = () => {
     setOpenChatDialog(false);
@@ -149,46 +158,54 @@ const Kids = () => {
 
   const handleAskQuestion = async () => {
     if (!question.trim() || !selectedKid) return;
-    
+
     // Add user question to chat history
-    const newQuestion = { question, answer: '' };
-    setChatHistory(prevHistory => [...prevHistory, newQuestion]);
+    const newQuestion = { question, answer: "" };
+    setChatHistory((prevHistory) => [...prevHistory, newQuestion]);
     setAskingQuestion(true);
-    
+
     try {
       // Send question to API
       await kidsAPI.createQuestion(selectedKid.id, { question });
-      
+
       // Get questions history after creating the question
       const historyResponse = await kidsAPI.getQuestionsHistory(selectedKid.id);
-      
+
       // Update chat history with the latest questions and answers
-      if (historyResponse.data && historyResponse.data.data && historyResponse.data.data.length > 0) {
+      if (
+        historyResponse.data &&
+        historyResponse.data.data &&
+        historyResponse.data.data.length > 0
+      ) {
         // Convert the history response to our chat history format
-        const formattedHistory = historyResponse.data.data.map(item => ({
+        const formattedHistory = historyResponse.data.data.map((item) => ({
           question: item.question,
-          answer: item.answer || 'I processed your question. Let me think about that!'
+          answer:
+            item.answer ||
+            "I processed your question. Let me think about that!",
         }));
-        
+
         setChatHistory(formattedHistory);
       } else {
         // If no history is returned, update just the current question
-        setChatHistory(prevHistory => {
+        setChatHistory((prevHistory) => {
           const updatedHistory = [...prevHistory];
           const lastQuestion = updatedHistory[updatedHistory.length - 1];
-          lastQuestion.answer = 'I processed your question. Let me think about that!';
+          lastQuestion.answer =
+            "I processed your question. Let me think about that!";
           return updatedHistory;
         });
       }
-      
-      setQuestion('');
+
+      setQuestion("");
     } catch (error) {
       console.error("Error asking question:", error);
       // Add error message to chat history
-      setChatHistory(prevHistory => {
+      setChatHistory((prevHistory) => {
         const updatedHistory = [...prevHistory];
         const lastQuestion = updatedHistory[updatedHistory.length - 1];
-        lastQuestion.answer = 'Sorry, I had trouble processing your question. Please try again.';
+        lastQuestion.answer =
+          "Sorry, I had trouble processing your question. Please try again.";
         return updatedHistory;
       });
     } finally {
@@ -204,23 +221,36 @@ const Kids = () => {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="card-interactive h-full relative overflow-hidden">
+      <Card
+        className="card-interactive h-full relative overflow-hidden "
+        sx={{
+          boxShadow: "0.75",
+          border: "1px solid #efefef",
+          borderRadius: "8px",
+        }}
+      >
         {/* Action Buttons */}
         <Box className="absolute top-2 right-2 z-10 flex gap-1">
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <IconButton 
-              size="small" 
+            <IconButton
+              size="small"
               onClick={() => handleEditKid(kid)}
-              sx={{ bgcolor: 'background.paper', '&:hover': { bgcolor: 'primary.main', color: 'white' } }}
+              sx={{
+                bgcolor: "background.paper",
+                "&:hover": { bgcolor: "primary.main", color: "white" },
+              }}
             >
               <Edit fontSize="small" />
             </IconButton>
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <IconButton 
-              size="small" 
+            <IconButton
+              size="small"
               onClick={() => handleDeleteKid(kid.id)}
-              sx={{ bgcolor: 'background.paper', '&:hover': { bgcolor: 'error.main', color: 'white' } }}
+              sx={{
+                bgcolor: "background.paper",
+                "&:hover": { bgcolor: "error.main", color: "white" },
+              }}
             >
               <Delete fontSize="small" />
             </IconButton>
@@ -230,19 +260,24 @@ const Kids = () => {
         <CardContent sx={{ pb: 2 }}>
           {/* Kid Info */}
           <Box className="flex items-center gap-3 mb-4">
-            <Avatar 
-              sx={{ 
-                width: 60, 
-                height: 60, 
-                bgcolor: 'primary.main',
-                fontSize: '24px',
-                fontWeight: 'bold'
+            <Avatar
+              sx={{
+                width: 70,
+                height: 70,
+                bgcolor: "#d6ecff",
+                fontSize: "24px",
+                fontWeight: "500",
+                color: "#002979 ",
               }}
             >
               {kid?.name?.charAt(0).toUpperCase()}
             </Avatar>
             <Box>
-              <Typography variant="h6" className="font-bold">
+              <Typography
+                variant="h6"
+                className="font-bold"
+                sx={{ color: "#002979" }}
+              >
                 {kid?.name}
               </Typography>
               <Typography variant="body2" className="text-muted-foreground">
@@ -258,7 +293,11 @@ const Kids = () => {
           <Grid container spacing={2} sx={{ mb: 3 }}>
             <Grid size={4}>
               <Box className="text-center">
-                <Typography variant="h6" className="font-bold text-primary">
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#002979" }}
+                  className="font-bold text-primary"
+                >
                   {0} {/* Placeholder */}
                 </Typography>
                 <Typography variant="caption" className="text-muted-foreground">
@@ -268,7 +307,11 @@ const Kids = () => {
             </Grid>
             <Grid size={4}>
               <Box className="text-center">
-                <Typography variant="h6" className="font-bold text-success">
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#002979" }}
+                  className="font-bold text-success"
+                >
                   {0}% {/* Placeholder */}
                 </Typography>
                 <Typography variant="caption" className="text-muted-foreground">
@@ -278,7 +321,11 @@ const Kids = () => {
             </Grid>
             <Grid size={4}>
               <Box className="text-center">
-                <Typography variant="h6" className="font-bold text-warning">
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#002979" }}
+                  className="font-bold text-warning"
+                >
                   {0}h {/* Placeholder */}
                 </Typography>
                 <Typography variant="caption" className="text-muted-foreground">
@@ -298,17 +345,17 @@ const Kids = () => {
                 {0}% {/* Placeholder */}
               </Typography>
             </Box>
-            <LinearProgress 
-              variant="determinate" 
-              value={0} 
-              sx={{ 
-                height: 8, 
+            <LinearProgress
+              variant="determinate"
+              value={0}
+              sx={{
+                height: 8,
                 borderRadius: 4,
-                backgroundColor: 'action.hover',
-                '& .MuiLinearProgress-bar': {
+                backgroundColor: "action.hover",
+                "& .MuiLinearProgress-bar": {
                   borderRadius: 4,
-                  background: 'linear-gradient(135deg, #1976d2, #42a5f5)'
-                }
+                  background: "linear-gradient(135deg, #1976d2, #42a5f5)",
+                },
               }}
             />
           </Box>
@@ -318,126 +365,137 @@ const Kids = () => {
             <Typography variant="body2" className="font-medium mb-2">
               Recent Achievements
             </Typography>
-            <Box className="flex flex-wrap gap-1">
-              {/* Placeholder */}
-            </Box>
+            <Box className="flex flex-wrap gap-1">{/* Placeholder */}</Box>
           </Box>
 
           {/* Action Buttons */}
-          <Grid container spacing={1}>
+          <Stack direction={"row"} gap={1}>
+            <PmsButton
+              buttonVarient="outlined"
+              name={"Chat"}
+              buttonClick={() => {
+                setSelectedKid(kid);
+                setKidPage("chatPage");
+              }}
+              startIcon={<Chat />}
+            />
+            <PmsButton
+              buttonVarient="outlined"
+              name={"Quiz"}
+              buttonClick={() => {}}
+              startIcon={<Quiz />}
+            />
+            <PmsButton
+              buttonVarient="outlined"
+              name={"Progress"}
+              buttonClick={() => {}}
+              startIcon={<TrendingUp />}
+            />
+          </Stack>
+          {/* <Grid container spacing={1}>
             <Grid size={4}>
-              <Button
-                variant="outlined"
-                size="small"
+              <PmsButton
+                buttonVarient="outlined"
+                name={"Chat"}
+                buttonClick={() => {
+                  setSelectedKid(kid);
+                  setKidPage("chatPage");
+                }}
                 startIcon={<Chat />}
-                fullWidth
-                sx={{ fontSize: '0.75rem' }}
-                onClick={() => handleOpenChatDialog(kid)}
-              >
-                Chat
-              </Button>
+              />
             </Grid>
             <Grid size={4}>
-              <Button
-                variant="outlined"
-                size="small"
+              <PmsButton
+                buttonVarient="outlined"
+                name={"Quiz"}
+                buttonClick={() => {}}
                 startIcon={<Quiz />}
-                fullWidth
-                sx={{ fontSize: '0.75rem' }}
-              >
-                Quiz
-              </Button>
+              />
             </Grid>
             <Grid size={4}>
-              <Button
-                variant="outlined"
-                size="small"
+              <PmsButton
+                buttonVarient="outlined"
+                name={"Progress"}
+                buttonClick={() => {}}
                 startIcon={<TrendingUp />}
-                fullWidth
-                sx={{ fontSize: '0.75rem' }}
-              >
-                Progress
-              </Button>
+              />
             </Grid>
-          </Grid>
+          </Grid> */}
         </CardContent>
       </Card>
     </motion.div>
   );
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 2 }}>
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Box className="flex items-center justify-between mb-8">
-          <Box>
-            <Typography variant="h3" className="font-bold text-foreground mb-2">
-              Your Kids 👨‍👩‍👧‍👦
-            </Typography>
-            <Typography fontWeight={400} className="text-muted-foreground">
-              Manage and track your children's learning progress
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<Add />}
-            onClick={handleAddKid}
-            className="btn-hero"
-            sx={{
-              background: 'linear-gradient(135deg, #1976d2, #42a5f5)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #1565c0, #1976d2)',
-              }
-            }}
+      {kidPage === "kidPage" ? (
+        <>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            Add New Kid
-          </Button>
-        </Box>
-      </motion.div>
+            <Box className="flex items-center justify-between mb-8">
+              <Box>
+                <Typography fontSize={"24px"} fontWeight={600}>
+                  Your Kids 👨‍👩‍👧‍👦
+                </Typography>
+                <Typography
+                  fontSize={"14px"}
+                  fontWeight={400}
+                  color="textDisabled"
+                >
+                  Manage and track your children's learning progress
+                </Typography>
+              </Box>
+              <PmsButton
+                buttonVarient="contained"
+                name={"Add New Kid"}
+                buttonClick={handleAddKid}
+                startIcon={<Add />}
+              />
+            </Box>
+          </motion.div>
 
-      {/* Add Kid Button */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.3 }}
-      >
-        <Box className="mb-6">
-          
-        </Box>
-      </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+          >
+            <Box className="mb-6"></Box>
+          </motion.div>
 
-      {/* Kids Grid */}
-      <Grid container spacing={3}>
-        <AnimatePresence>
-          {kids.map((kid, index) => (
-            <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={kid.id}>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-              >
-                <KidCard kid={kid} />
-              </motion.div>
-            </Grid>
-          ))}
-        </AnimatePresence>
-      </Grid>
+          <Grid container spacing={3}>
+            <AnimatePresence>
+              {kids.map((kid, index) => (
+                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={kid.id}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.5 }}
+                  >
+                    <KidCard kid={kid} />
+                  </motion.div>
+                </Grid>
+              ))}
+            </AnimatePresence>
+          </Grid>
+        </>
+      ) : (
+        <>
+          <ChatPage setKidPage={setKidPage} kidId={selectedKid?.id ?? 0} />
+        </>
+      )}
 
       {/* Add/Edit Kid Dialog */}
-      <Dialog 
-        open={openDialog} 
+      <Dialog
+        open={openDialog}
         onClose={() => setOpenDialog(false)}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>
-          {selectedKid ? 'Edit Kid' : 'Add New Kid'}
-        </DialogTitle>
+        <DialogTitle>{selectedKid ? "Edit Kid" : "Add New Kid"}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid size={12}>
@@ -455,7 +513,9 @@ const Kids = () => {
                 label="Age"
                 type="number"
                 value={newKid.age}
-                onChange={(e) => setNewKid({ ...newKid, age: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setNewKid({ ...newKid, age: parseInt(e.target.value) })
+                }
                 variant="outlined"
               />
             </Grid>
@@ -464,7 +524,9 @@ const Kids = () => {
                 fullWidth
                 label="Grade/Standard"
                 value={newKid.standard}
-                onChange={(e) => setNewKid({ ...newKid, standard: e.target.value })}
+                onChange={(e) =>
+                  setNewKid({ ...newKid, standard: e.target.value })
+                }
                 variant="outlined"
               />
             </Grid>
@@ -473,23 +535,29 @@ const Kids = () => {
                 fullWidth
                 label="School Name"
                 value={newKid.school}
-                onChange={(e) => setNewKid({ ...newKid, school: e.target.value })}
+                onChange={(e) =>
+                  setNewKid({ ...newKid, school: e.target.value })
+                }
                 variant="outlined"
               />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSaveKid}
-            variant="contained"
-            disabled={!newKid.name || !newKid.age || !newKid.school || !newKid.standard}
-          >
-            {selectedKid ? 'Update' : 'Add Kid'}
-          </Button>
+          <PmsButton
+            buttonVarient="outlined"
+            name={"Cancel"}
+            buttonClick={() => setOpenDialog(false)}
+          />
+          <PmsButton
+            buttonVarient="contained"
+            name={selectedKid ? "Update" : "Add Kid"}
+            buttonClick={handleSaveKid}
+            startIcon={<TrendingUp />}
+            isDisable={
+              !newKid.name || !newKid.age || !newKid.school || !newKid.standard
+            }
+          />
         </DialogActions>
       </Dialog>
 
@@ -502,20 +570,47 @@ const Kids = () => {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            overflow: 'hidden'
-          }
+            overflow: "hidden",
+          },
         }}
       >
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', gap: 1 }}>
+        <DialogTitle
+          sx={{
+            bgcolor: "primary.main",
+            color: "white",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
           <Chat fontSize="small" />
           Chat with Tutor {selectedKid && `- ${selectedKid.name}`}
         </DialogTitle>
-        
-        <DialogContent sx={{ p: 2, height: '400px', display: 'flex', flexDirection: 'column' }}>
-          <Box sx={{ flexGrow: 1, overflow: 'auto', mb: 2, p: 1 }}>
+
+        <DialogContent
+          sx={{
+            p: 2,
+            height: "400px",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <Box sx={{ flexGrow: 1, overflow: "auto", mb: 2, p: 1 }}>
             {chatHistory.length === 0 ? (
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', opacity: 0.7 }}>
-                <Typography variant="body1" sx={{ mb: 1, fontWeight: 'medium' }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "100%",
+                  opacity: 0.7,
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{ mb: 1, fontWeight: "medium" }}
+                >
                   Ask me anything about your studies!
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -526,48 +621,50 @@ const Kids = () => {
               chatHistory.map((chat, index) => (
                 <Box key={index} sx={{ mb: 2 }}>
                   {/* Question */}
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}
+                  >
                     <Paper
                       elevation={0}
                       sx={{
                         p: 1.5,
-                        bgcolor: 'primary.light',
-                        color: 'primary.contrastText',
-                        borderRadius: '12px 12px 0 12px',
-                        maxWidth: '80%'
+                        bgcolor: "primary.light",
+                        color: "primary.contrastText",
+                        borderRadius: "12px 12px 0 12px",
+                        maxWidth: "80%",
                       }}
                     >
                       <Typography variant="body2">{chat.question}</Typography>
                     </Paper>
                   </Box>
-                  
+
                   {/* Answer */}
                   {chat.answer ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+                    <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
                       <Paper
                         elevation={0}
                         sx={{
                           p: 1.5,
-                          bgcolor: 'grey.100',
-                          borderRadius: '12px 12px 12px 0',
-                          maxWidth: '80%'
+                          bgcolor: "grey.100",
+                          borderRadius: "12px 12px 12px 0",
+                          maxWidth: "80%",
                         }}
                       >
                         <Typography variant="body2">{chat.answer}</Typography>
                       </Paper>
                     </Box>
                   ) : (
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+                    <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
                       <Paper
                         elevation={0}
                         sx={{
                           p: 1.5,
-                          bgcolor: 'grey.100',
-                          borderRadius: '12px 12px 12px 0',
-                          maxWidth: '80%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 1
+                          bgcolor: "grey.100",
+                          borderRadius: "12px 12px 12px 0",
+                          maxWidth: "80%",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
                         }}
                       >
                         <CircularProgress size={16} />
@@ -579,15 +676,15 @@ const Kids = () => {
               ))
             )}
             {askingQuestion && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+              <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
                 <CircularProgress size={24} />
               </Box>
             )}
           </Box>
-          
+
           <Divider sx={{ mb: 2 }} />
-          
-          <Box sx={{ display: 'flex', gap: 1 }}>
+
+          <Box sx={{ display: "flex", gap: 1 }}>
             <TextField
               fullWidth
               placeholder="Ask a question..."
@@ -595,18 +692,16 @@ const Kids = () => {
               size="small"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleAskQuestion()}
+              onKeyPress={(e) => e.key === "Enter" && handleAskQuestion()}
               disabled={askingQuestion}
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleAskQuestion}
-              disabled={!question.trim() || askingQuestion}
+            <PmsButton
+              buttonVarient="contained"
               startIcon={<Send />}
-            >
-              Ask
-            </Button>
+              name={"Ask"}
+              buttonClick={handleAskQuestion}
+              isDisable={!question.trim() || askingQuestion}
+            />
           </Box>
         </DialogContent>
       </Dialog>

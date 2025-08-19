@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   AppBar,
   Toolbar,
@@ -17,17 +18,19 @@ import {
   Divider,
   useMediaQuery,
   useTheme,
-  CircularProgress
-} from '@mui/material';
+  CircularProgress,
+  Stack,
+} from "@mui/material";
 import {
   Menu as MenuIcon,
   Dashboard,
   ChildCare,
   Person,
   Logout,
-  ChevronLeft
-} from '@mui/icons-material';
-import { authAPI } from '../../services/api';
+} from "@mui/icons-material";
+import { authAPI } from "../../services/api";
+import Logo from "../../assets/chatbot.png";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 
 const drawerWidth = 280;
 
@@ -41,7 +44,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -51,10 +54,10 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         if (response.data.status_message === "SUCCESS") {
           setUserInfo(response.data.data);
         } else {
-          setError(response.data || 'Failed to fetch user info');
+          setError(response.data.data.name || "Failed to fetch user info");
         }
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Error fetching user info');
+        setError(err.response?.data?.message || "Error fetching user info");
       } finally {
         setLoading(false);
       }
@@ -72,28 +75,33 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    navigate('/verify-email');
+    navigate("/verify-email");
   };
 
   const menuItems = [
-    { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
-    { text: 'Kids', icon: <ChildCare />, path: '/kids' },
-    { text: 'Profile', icon: <Person />, path: '/profile' },
+    { text: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
+    { text: "Kids", icon: <ChildCare />, path: "/kids" },
+    { text: "Profile", icon: <Person />, path: "/profile" },
   ];
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "#002979",
+      }}
+    >
       {/* Header */}
-      <Box sx={{ p: 2, background: '#2196F3' }}>
+      <Box sx={{ p: 2 }}>
         <Box className="flex items-center justify-between">
           <Box className="flex items-center space-x-3">
-            <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
-              Chatbot Tutor
-            </Typography>
+            <img width={"80%"} src={Logo} alt="" />
           </Box>
           {!isMobile && (
-            <IconButton onClick={handleDrawerToggle} sx={{ color: 'white' }}>
-              <ChevronLeft />
+            <IconButton onClick={handleDrawerToggle} sx={{ color: "white" }}>
+              <KeyboardDoubleArrowLeftIcon style={{ color: "#fff" }} />
             </IconButton>
           )}
         </Box>
@@ -114,23 +122,37 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     if (isMobile) setMobileOpen(false);
                   }}
                   sx={{
-                    borderRadius: '8px',
-                    backgroundColor: location.pathname === item.path ? 'primary.main' : 'transparent',
-                    color: location.pathname === item.path ? '#FFFFFF' : '#212121',
-                    '&:hover': {
-                      backgroundColor: location.pathname === item.path ? 'primary.dark' : 'rgba(33, 150, 243, 0.08)',
+                    borderRadius: "8px",
+                    backgroundColor:
+                      location.pathname === item.path
+                        ? "#2A58AD"
+                        : "transparent",
+                    color: "#fff",
+                    "&:hover": {
+                      backgroundColor:
+                        location.pathname === item.path
+                          ? "primary.dark"
+                          : "rgba(33, 150, 243, 0.08)",
                     },
                   }}
                 >
-                  <ListItemIcon sx={{
-                    color: location.pathname === item.path ? 'primary.contrastText' : 'primary.main',
-                    minWidth: '40px'
-                  }}>
+                  <ListItemIcon
+                    sx={{
+                      color:
+                        location.pathname === item.path
+                          ? "primary.contrastText"
+                          : "primary.main",
+                      minWidth: "40px",
+                    }}
+                  >
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText
                     primary={item.text}
-                    primaryTypographyProps={{ fontWeight: 'medium' }}
+                    primaryTypographyProps={{
+                      fontWeight: "400",
+                      color: "#efefef",
+                    }}
                   />
                 </ListItemButton>
               </ListItem>
@@ -146,20 +168,22 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <ListItemButton
               onClick={handleLogout}
               sx={{
-                borderRadius: '12px',
-                color: 'error.main',
-                '&:hover': {
-                  backgroundColor: 'error.light',
-                  color: 'error.contrastText',
+                borderRadius: "12px",
+                color: "error.main",
+                "&:hover": {
+                  backgroundColor: "#2A58AD",
+                  color: "error.contrastText",
                 },
               }}
             >
-              <ListItemIcon sx={{ color: 'inherit', minWidth: '40px' }}>
+              <ListItemIcon
+                sx={{ color: "primary.contrastText", minWidth: "40px" }}
+              >
                 <Logout />
               </ListItemIcon>
               <ListItemText
                 primary="Logout"
-                primaryTypographyProps={{ fontWeight: 'medium' }}
+                primaryTypographyProps={{ fontWeight: "400", color: "#fff" }}
               />
             </ListItemButton>
           </ListItem>
@@ -168,21 +192,22 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     </Box>
   );
 
-  const displayName = userInfo?.name || userInfo?.email || 'Guest';
+  const displayName = userInfo?.name || userInfo?.email || "Guest";
+  const displayEmail = userInfo?.email || "xyz@gmail.com";
   const avatarInitial = displayName.charAt(0).toUpperCase();
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       {/* App Bar */}
       <AppBar
         position="fixed"
         sx={{
           width: { md: `calc(100% - ${desktopOpen ? drawerWidth : 0}px)` },
           ml: { md: desktopOpen ? `${drawerWidth}px` : 0 },
-          background: 'linear-gradient(135deg, #ffffff, #f8f9fa)',
-          color: 'text.primary',
-          boxShadow: '0 2px 8px rgba(25, 118, 210, 0.1)',
-          transition: theme.transitions.create(['width', 'margin'], {
+          background: "linear-gradient(135deg, #ffffff, #f8f9fa)",
+          color: "text.primary",
+          boxShadow: "0 2px 8px rgba(25, 118, 210, 0.1)",
+          transition: theme.transitions.create(["width", "margin"], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
@@ -194,30 +219,65 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: desktopOpen ? 'none' : 'block' } }}
+            sx={{ mr: 2, display: { md: desktopOpen ? "none" : "block" } }}
           >
             <MenuIcon />
           </IconButton>
 
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: 'primary.main' }}>
-            {menuItems.find(item => item.path === location.pathname)?.text || 'BrightSpark Tutor'}
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ flexGrow: 1, color: "primary.main" }}
+          >
+            {menuItems.find((item) => item.path === location.pathname)?.text ||
+              "BrightSpark Tutor"}
           </Typography>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             {loading ? (
               <CircularProgress size={20} color="primary" />
             ) : error ? (
-              <Typography variant="body2" color="error" sx={{ fontWeight: 500 }}>
+              <Typography
+                variant="body2"
+                color="error"
+                sx={{ fontWeight: 500 }}
+              >
                 {error}
               </Typography>
             ) : (
               <>
-                <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontWeight: 600 }}>
+                <Avatar
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    bgcolor: "#002979",
+                    fontWeight: 600,
+                  }}
+                >
                   {avatarInitial}
                 </Avatar>
-                <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, fontWeight: 500 }}>
-                  {displayName}
-                </Typography>
+                <Stack>
+                  <Typography
+                    fontSize={"16px"}
+                    sx={{
+                      display: { xs: "none", sm: "block" },
+                      fontWeight: 500,
+                    }}
+                  >
+                    {displayName}
+                  </Typography>
+                  <Typography
+                    fontSize={"12px"}
+                    color="textDisabled"
+                    sx={{
+                      display: { xs: "none", sm: "block" },
+                      fontWeight: 500,
+                    }}
+                  >
+                    {displayEmail}
+                  </Typography>
+                </Stack>
               </>
             )}
           </Box>
@@ -227,7 +287,10 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {/* Navigation Drawer */}
       <Box
         component="nav"
-        sx={{ width: { md: desktopOpen ? drawerWidth : 0 }, flexShrink: { md: 0 } }}
+        sx={{
+          width: { md: desktopOpen ? drawerWidth : 0 },
+          flexShrink: { md: 0 },
+        }}
       >
         {/* Mobile drawer */}
         <Drawer
@@ -236,8 +299,11 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           onClose={handleDrawerToggle}
           ModalProps={{ keepMounted: true }}
           sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            display: { xs: "block", md: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
           }}
         >
           {drawerContent}
@@ -247,12 +313,12 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           variant="persistent"
           open={desktopOpen}
           sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
+            display: { xs: "none", md: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
               width: drawerWidth,
-              border: 'none',
-              boxShadow: '4px 0 12px rgba(25, 118, 210, 0.1)'
+              border: "none",
+              boxShadow: "4px 0 12px rgba(25, 118, 210, 0.1)",
             },
           }}
         >
@@ -266,7 +332,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         sx={{
           flexGrow: 1,
           width: { md: `calc(100% - ${desktopOpen ? drawerWidth : 0}px)` },
-          transition: theme.transitions.create(['width', 'margin'], {
+          transition: theme.transitions.create(["width", "margin"], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   Container,
   Typography,
@@ -14,8 +14,8 @@ import {
   Switch,
   FormControlLabel,
   Alert,
-  Chip
-} from '@mui/material';
+  Chip,
+} from "@mui/material";
 import {
   Edit,
   Save,
@@ -23,25 +23,27 @@ import {
   Security,
   Notifications,
   Language,
-  Palette,
-  ChildCare
-} from '@mui/icons-material';
-import VirtualCharacter from '../../components/VirtualCharacter';
-import { authAPI, usersAPI } from '../../services/api';
-import { GetUserDetailsResponse, UpdateUserRequest } from '../../types/api';
+  ChildCare,
+} from "@mui/icons-material";
+import { authAPI, usersAPI } from "../../services/api";
+import { GetUserDetailsResponse, UpdateUserRequest } from "../../types/api";
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [profile, setProfile] = useState<GetUserDetailsResponse | null>(null);
-  const [editedProfile, setEditedProfile] = useState<UpdateUserRequest | null>(null);
+  const [editedProfile, setEditedProfile] = useState<UpdateUserRequest | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await authAPI.getUserInfo();
-        const userDetailsResponse = await usersAPI.getUserById(response.data.data.id);
+        const userDetailsResponse = await usersAPI.getUserById(
+          response.data.data.id
+        );
         setProfile(userDetailsResponse.data.data);
         setEditedProfile(userDetailsResponse.data.data);
         setLoading(false);
@@ -80,7 +82,7 @@ const Profile = () => {
     if (!editedProfile) return;
     setEditedProfile({
       ...editedProfile,
-      [field]: value
+      [field]: value,
     });
   };
 
@@ -93,10 +95,10 @@ const Profile = () => {
   };
 
   const stats = [
-    { label: 'Total Kids', value: '0', color: '#1976d2' }, // Placeholder
-    { label: 'Active Sessions', value: '0', color: '#42a5f5' }, // Placeholder
-    { label: 'Completed Quizzes', value: '0', color: '#90caf9' }, // Placeholder
-    { label: 'Achievements Earned', value: '0', color: '#ffd54f' } // Placeholder
+    { label: "Total Kids", value: "0", color: "#1976d2" }, // Placeholder
+    { label: "Active Sessions", value: "0", color: "#42a5f5" }, // Placeholder
+    { label: "Completed Quizzes", value: "0", color: "#90caf9" }, // Placeholder
+    { label: "Achievements Earned", value: "0", color: "#ffd54f" }, // Placeholder
   ];
 
   return (
@@ -116,11 +118,6 @@ const Profile = () => {
               Manage your account information and preferences
             </Typography>
           </Box>
-          <VirtualCharacter
-            size="lg"
-            animation="thinking"
-            message="Let's update your profile!"
-          />
         </Box>
       </motion.div>
 
@@ -131,15 +128,13 @@ const Profile = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-4"
         >
-          <Alert severity="success">
-            Profile updated successfully!
-          </Alert>
+          <Alert severity="success">Profile updated successfully!</Alert>
         </motion.div>
       )}
 
       <Grid container spacing={3}>
         {/* Profile Information */}
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ lg: 8, xs: 12 }}>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -187,19 +182,25 @@ const Profile = () => {
                       sx={{
                         width: 80,
                         height: 80,
-                        bgcolor: 'primary.main',
-                        fontSize: '2rem',
-                        fontWeight: 'bold'
+                        bgcolor: "primary.main",
+                        fontSize: "2rem",
+                        fontWeight: "bold",
                       }}
                     >
-                      {profile.name.split(' ').map(n => n[0]).join('')}
+                      {profile.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
                     </Avatar>
                   )}
                   <Box>
                     <Typography variant="h6" className="font-bold">
                       {profile?.name}
                     </Typography>
-                    <Typography variant="body2" className="text-muted-foreground">
+                    <Typography
+                      variant="body2"
+                      className="text-muted-foreground"
+                    >
                       Parent Account
                     </Typography>
                     <Chip
@@ -217,42 +218,56 @@ const Profile = () => {
                 {/* Form Fields */}
                 {profile && editedProfile && (
                   <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ sm: 6, xs: 12 }}>
                       <TextField
                         fullWidth
                         label="Full Name"
                         value={isEditing ? editedProfile.name : profile.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
                         disabled={!isEditing}
                         variant="outlined"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ sm: 6, xs: 12 }}>
                       <TextField
                         fullWidth
                         label="Email Address"
                         value={isEditing ? editedProfile.email : profile.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         disabled={!isEditing}
                         variant="outlined"
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ sm: 6, xs: 12 }}>
                       <TextField
                         fullWidth
                         label="Phone Number"
-                        value={isEditing ? editedProfile.phone_number : profile.phone_number}
-                        onChange={(e) => handleInputChange('phone_number', e.target.value)}
+                        value={
+                          isEditing
+                            ? editedProfile.phone_number
+                            : profile.phone_number
+                        }
+                        onChange={(e) =>
+                          handleInputChange("phone_number", e.target.value)
+                        }
                         disabled={!isEditing}
                         variant="outlined"
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={{ sm: 6, xs: 12 }}>
                       <TextField
                         fullWidth
                         label="Address"
-                        value={isEditing ? editedProfile.address : profile.address}
-                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        value={
+                          isEditing ? editedProfile.address : profile.address
+                        }
+                        onChange={(e) =>
+                          handleInputChange("address", e.target.value)
+                        }
                         disabled={!isEditing}
                         variant="outlined"
                         multiline
@@ -282,47 +297,27 @@ const Profile = () => {
                 </Box>
 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ sm: 6, xs: 12 }}>
                     <FormControlLabel
-                      control={
-                        <Switch
-                          checked={false}
-                          disabled={true}
-                        />
-                      }
+                      control={<Switch checked={false} disabled={true} />}
                       label="Email Notifications"
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ sm: 6, xs: 12 }}>
                     <FormControlLabel
-                      control={
-                        <Switch
-                          checked={false}
-                          disabled={true}
-                        />
-                      }
+                      control={<Switch checked={false} disabled={true} />}
                       label="Push Notifications"
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ sm: 6, xs: 12 }}>
                     <FormControlLabel
-                      control={
-                        <Switch
-                          checked={false}
-                          disabled={true}
-                        />
-                      }
+                      control={<Switch checked={false} disabled={true} />}
                       label="Kid Progress Updates"
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ sm: 6, xs: 12 }}>
                     <FormControlLabel
-                      control={
-                        <Switch
-                          checked={false}
-                          disabled={true}
-                        />
-                      }
+                      control={<Switch checked={false} disabled={true} />}
                       label="Quiz Reminders"
                     />
                   </Grid>
@@ -333,7 +328,7 @@ const Profile = () => {
         </Grid>
 
         {/* Statistics and Quick Actions */}
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ sm: 6, xs: 12, lg: 4 }}>
           {/* Statistics */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -347,7 +342,7 @@ const Profile = () => {
                 </Typography>
                 <Grid container spacing={2}>
                   {stats.map((stat, index) => (
-                    <Grid item xs={6} key={stat.label}>
+                    <Grid size={{ sm: 12, xs: 6 }} key={stat.label}>
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -361,7 +356,10 @@ const Profile = () => {
                           >
                             {stat.value}
                           </Typography>
-                          <Typography variant="caption" className="text-muted-foreground">
+                          <Typography
+                            variant="caption"
+                            className="text-muted-foreground"
+                          >
                             {stat.label}
                           </Typography>
                         </Box>
@@ -389,7 +387,7 @@ const Profile = () => {
                     fullWidth
                     variant="outlined"
                     startIcon={<Security />}
-                    sx={{ justifyContent: 'flex-start' }}
+                    sx={{ justifyContent: "flex-start" }}
                   >
                     Change Password
                   </Button>
@@ -397,7 +395,7 @@ const Profile = () => {
                     fullWidth
                     variant="outlined"
                     startIcon={<ChildCare />}
-                    sx={{ justifyContent: 'flex-start' }}
+                    sx={{ justifyContent: "flex-start" }}
                   >
                     Hand Over to Child
                   </Button>
@@ -405,7 +403,7 @@ const Profile = () => {
                     fullWidth
                     variant="outlined"
                     startIcon={<Language />}
-                    sx={{ justifyContent: 'flex-start' }}
+                    sx={{ justifyContent: "flex-start" }}
                   >
                     Download Data
                   </Button>
@@ -415,7 +413,7 @@ const Profile = () => {
                     variant="outlined"
                     color="error"
                     startIcon={<Security />}
-                    sx={{ justifyContent: 'flex-start' }}
+                    sx={{ justifyContent: "flex-start" }}
                   >
                     Delete Account
                   </Button>
