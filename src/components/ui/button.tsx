@@ -14,14 +14,6 @@ interface IButtonProps {
   dataTestid?: string;
 }
 
-/*
- * purpose: Reusable Button Component (simplified)
- * author: Ganesh Mesta
- * lastUpdatedBy: Vivek Hegde
- * version: 1.2
- * lastUpdatedAt: 19-08-2025
- */
-
 export const PmsButton = (props: IButtonProps) => {
   return (
     <Button
