@@ -22,6 +22,7 @@ import SetPassword from './pages/SetPassword/SetPassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import KidsPage from './pages/Kids/KidsPage';
 import ProfilePage from './pages/Profile/ProfilePage';
+import QuizPage from './pages/Kids/QuizPage/QuizPage';
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <KidsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/kids/quiz"
+                element={
+                  <ProtectedRoute>
+                    <QuizPage />
                   </ProtectedRoute>
                 }
               />

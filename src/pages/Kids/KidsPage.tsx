@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -35,6 +36,7 @@ import ChatPage from "./ChatPage";
 import { PmsButton } from "../../components/ui/button";
 
 const Kids = () => {
+  const navigate = useNavigate();
   const [kids, setKids] = useState<GetKidResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
@@ -382,7 +384,7 @@ const Kids = () => {
             <PmsButton
               buttonVarient="outlined"
               name={"Quiz"}
-              buttonClick={() => {}}
+              buttonClick={() => navigate("/kids/quiz")}
               startIcon={<Quiz />}
             />
             <PmsButton
