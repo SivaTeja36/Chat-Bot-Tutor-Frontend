@@ -449,7 +449,7 @@ const Quiz: React.FC = () => {
                           "linear-gradient(135deg,#f8fafd 60%,#f4f0ff 100%)",
                         minHeight: 120,
                         cursor: "pointer",
-                        boxShadow: "0 1.5px 6px #d6d7f544",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
@@ -491,7 +491,7 @@ const Quiz: React.FC = () => {
                 <Typography
                   variant="h6"
                   fontWeight={700}
-                  sx={{ color: "#287af9", mt: 1.5 }}
+                  sx={{ color: "#2196F3", mt: 1.5 }}
                   gutterBottom
                 >
                   {score > quizData[selectedSubject].length / 2
@@ -504,7 +504,7 @@ const Quiz: React.FC = () => {
                 </Typography>
                 <Box mb={2}>
                   <LinearProgress
-                    color="success"
+                    color="primary"
                     variant="determinate"
                     value={(score / quizData[selectedSubject].length) * 100}
                     sx={{

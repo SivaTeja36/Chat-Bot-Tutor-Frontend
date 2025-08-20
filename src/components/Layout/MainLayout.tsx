@@ -49,7 +49,6 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        // FIX: Check status_message
         const response = await authAPI.getUserInfo();
         if (response.data.status_message === "SUCCESS") {
           setUserInfo(response.data.data);
@@ -62,7 +61,6 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         setLoading(false);
       }
     };
-
     fetchUserInfo();
   }, []);
 
@@ -74,7 +72,9 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   };
 
+  // --- This is the fix: remove handover state on logout ---
   const handleLogout = () => {
+    localStorage.removeItem("handedOverKidId_2025");
     navigate("/verify-email");
   };
 
