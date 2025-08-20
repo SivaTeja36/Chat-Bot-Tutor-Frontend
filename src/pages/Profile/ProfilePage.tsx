@@ -15,6 +15,7 @@ import {
   FormControlLabel,
   Alert,
   Chip,
+  Stack,
 } from "@mui/material";
 import {
   Edit,
@@ -22,11 +23,14 @@ import {
   Cancel,
   Security,
   Notifications,
-  Language,
-  ChildCare,
 } from "@mui/icons-material";
 import { authAPI, usersAPI } from "../../services/api";
 import { GetUserDetailsResponse, UpdateUserRequest } from "../../types/api";
+import { PmsButton } from "../../components/ui/button";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -86,14 +90,6 @@ const Profile = () => {
     });
   };
 
-  const handleNotificationChange = (field: string, value: boolean) => {
-    // API not available
-  };
-
-  const handlePreferenceChange = (field: string, value: any) => {
-    // API not available
-  };
-
   const stats = [
     { label: "Total Kids", value: "0", color: "#1976d2" }, // Placeholder
     { label: "Active Sessions", value: "0", color: "#42a5f5" }, // Placeholder
@@ -111,10 +107,10 @@ const Profile = () => {
       >
         <Box className="flex items-center justify-between mb-8">
           <Box>
-            <Typography variant="h3" className="font-bold text-foreground mb-2">
+            <Typography fontSize={"20px"} fontWeight={600}>
               Profile Settings ⚙️
             </Typography>
-            <Typography variant="h6" className="text-muted-foreground">
+            <Typography color="textDisabled">
               Manage your account information and preferences
             </Typography>
           </Box>
@@ -140,37 +136,41 @@ const Profile = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <Card className="card-elevated">
+            <Card className="card-elevated" sx={{ p: 2 }}>
               <CardContent>
                 <Box className="flex items-center justify-between mb-6">
-                  <Typography variant="h5" className="font-bold">
-                    Personal Information
-                  </Typography>
+                  <Stack direction={"row"} alignItems={"center"} gap={1}>
+                    <AccountCircleIcon
+                      sx={{ color: "#002979" }}
+                      fontSize="medium"
+                    />
+                    <Typography fontSize={"18px"} fontWeight={500}>
+                      Personal Information
+                    </Typography>
+                  </Stack>
                   {!isEditing ? (
-                    <Button
-                      variant="outlined"
+                    <PmsButton
+                      buttonVarient="outlined"
+                      name="Edit Profile"
+                      buttonClick={handleEdit}
                       startIcon={<Edit />}
-                      onClick={handleEdit}
-                    >
-                      Edit Profile
-                    </Button>
+                    />
                   ) : (
                     <Box className="flex gap-2">
-                      <Button
-                        variant="outlined"
+                      <PmsButton
+                        buttonVarient="outlined"
+                        name="Cancel"
+                        buttonClick={handleCancel}
                         startIcon={<Cancel />}
-                        onClick={handleCancel}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        variant="contained"
+                        size="small"
+                      />
+                      <PmsButton
+                        buttonVarient="contained"
+                        name="Save Changes"
+                        buttonClick={handleSave}
                         startIcon={<Save />}
-                        onClick={handleSave}
-                        className="btn-hero"
-                      >
-                        Save Changes
-                      </Button>
+                        size="small"
+                      />
                     </Box>
                   )}
                 </Box>
@@ -182,9 +182,9 @@ const Profile = () => {
                       sx={{
                         width: 80,
                         height: 80,
-                        bgcolor: "primary.main",
+                        bgcolor: "#002979",
                         fontSize: "2rem",
-                        fontWeight: "bold",
+                        fontWeight: "500",
                       }}
                     >
                       {profile.name
@@ -194,7 +194,7 @@ const Profile = () => {
                     </Avatar>
                   )}
                   <Box>
-                    <Typography variant="h6" className="font-bold">
+                    <Typography fontSize={"18px"} fontWeight={500}>
                       {profile?.name}
                     </Typography>
                     <Typography
@@ -204,11 +204,10 @@ const Profile = () => {
                       Parent Account
                     </Typography>
                     <Chip
-                      label="Premium Member"
+                      label="👑 Premium Member"
                       size="small"
-                      color="primary"
                       variant="outlined"
-                      sx={{ mt: 1 }}
+                      sx={{ mt: 1, color: "#002979" }}
                     />
                   </Box>
                 </Box>
@@ -233,18 +232,6 @@ const Profile = () => {
                     <Grid size={{ sm: 6, xs: 12 }}>
                       <TextField
                         fullWidth
-                        label="Email Address"
-                        value={isEditing ? editedProfile.email : profile.email}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
-                        disabled={!isEditing}
-                        variant="outlined"
-                      />
-                    </Grid>
-                    <Grid size={{ sm: 6, xs: 12 }}>
-                      <TextField
-                        fullWidth
                         label="Phone Number"
                         value={
                           isEditing
@@ -258,20 +245,16 @@ const Profile = () => {
                         variant="outlined"
                       />
                     </Grid>
-                    <Grid size={{ sm: 6, xs: 12 }}>
+                    <Grid size={{ sm: 12, xs: 12 }}>
                       <TextField
                         fullWidth
-                        label="Address"
-                        value={
-                          isEditing ? editedProfile.address : profile.address
-                        }
+                        label="Email Address"
+                        value={profile.email}
                         onChange={(e) =>
-                          handleInputChange("address", e.target.value)
+                          handleInputChange("email", e.target.value)
                         }
-                        disabled={!isEditing}
+                        disabled={true}
                         variant="outlined"
-                        multiline
-                        rows={2}
                       />
                     </Grid>
                   </Grid>
@@ -290,8 +273,8 @@ const Profile = () => {
             <Card className="card-elevated">
               <CardContent>
                 <Box className="flex items-center gap-2 mb-4">
-                  <Notifications color="primary" />
-                  <Typography variant="h5" className="font-bold">
+                  <Notifications sx={{ color: "#002979" }} />
+                  <Typography fontSize={"18px"} fontWeight={500}>
                     Notification Preferences
                   </Typography>
                 </Box>
@@ -335,11 +318,14 @@ const Profile = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <Card className="card-elevated mb-4">
+            <Card className="card-elevated mb-4" sx={{ p: 2 }}>
               <CardContent>
-                <Typography variant="h6" className="font-bold mb-4">
-                  Account Statistics
-                </Typography>
+                <Stack direction={"row"} alignItems={"center"} gap={1} mb={2}>
+                  <PermContactCalendarIcon sx={{ color: "#002979" }} />
+                  <Typography fontSize={"18px"} fontWeight={500}>
+                    Account Statistics
+                  </Typography>
+                </Stack>
                 <Grid container spacing={2}>
                   {stats.map((stat, index) => (
                     <Grid size={{ sm: 12, xs: 6 }} key={stat.label}>
@@ -377,46 +363,29 @@ const Profile = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.5 }}
           >
-            <Card className="card-elevated">
+            <Card className="card-elevated" sx={{ p: 1 }}>
               <CardContent>
-                <Typography variant="h6" className="font-bold mb-4">
-                  Quick Actions
-                </Typography>
+                <Stack direction={"row"} alignItems={"center"} gap={1} mb={3}>
+                  <TrackChangesIcon sx={{ color: "#002979" }} />
+                  <Typography fontSize={"18px"} fontWeight={500}>
+                    Quick Actions
+                  </Typography>
+                </Stack>
                 <Box className="space-y-3">
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<Security />}
-                    sx={{ justifyContent: "flex-start" }}
-                  >
-                    Change Password
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<ChildCare />}
-                    sx={{ justifyContent: "flex-start" }}
-                  >
-                    Hand Over to Child
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<Language />}
-                    sx={{ justifyContent: "flex-start" }}
-                  >
-                    Download Data
-                  </Button>
-                  <Divider sx={{ my: 2 }} />
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    color="error"
-                    startIcon={<Security />}
-                    sx={{ justifyContent: "flex-start" }}
-                  >
-                    Delete Account
-                  </Button>
+                  <Stack gap={1}>
+                    <PmsButton
+                      buttonVarient="contained"
+                      name={" Change Password"}
+                      buttonClick={() => {}}
+                      startIcon={<Security />}
+                    />
+                    <PmsButton
+                      buttonVarient="contained"
+                      name={" Delete Account"}
+                      buttonClick={() => {}}
+                      startIcon={<DeleteOutlineIcon />}
+                    />
+                  </Stack>
                 </Box>
               </CardContent>
             </Card>

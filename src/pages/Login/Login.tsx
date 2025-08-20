@@ -8,19 +8,20 @@ import {
   Alert,
   CircularProgress,
   Box,
+  Grid,
+  Stack,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { styled } from "@mui/material/styles";
-
-import AnimatedButton from "../../components/AnimatedButton/AnimatedButton";
 import {
   FullScreenRoot,
   LeftSide,
   RightSide,
   FormPaper,
   textFieldSx,
-  buttonSx,
+  
 } from "../../components/AuthStyles/AuthStyles";
+import { PmsButton } from "../../components/ui/button";
 
 // Styled BackLink defined here to ensure correct usage
 const BackLink = styled(Link)({
@@ -61,6 +62,7 @@ const Login: React.FC = () => {
     try {
       await login(formData.email, formData.password);
       navigate("/dashboard");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(
         error.response?.data?.message ||
@@ -91,9 +93,9 @@ const Login: React.FC = () => {
               variant="h4"
               component="h1"
               align="center"
-              color="primary"
+              color="#002979"
               fontWeight="bold"
-              sx={{ mb: 2, fontSize: "2rem" }}
+              sx={{ mb: 0.5, fontSize: "2rem" }}
             >
               Welcome Back! 👋
             </Typography>
@@ -133,26 +135,30 @@ const Login: React.FC = () => {
                   {error}
                 </Alert>
               )}
-              <Box mt={3}>
-                <AnimatedButton
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  disabled={loading}
-                  animationType="bounce"
-                  sx={buttonSx}
-                >
-                  {loading ? (
-                    <CircularProgress size={24} color="inherit" />
-                  ) : (
-                    "Sign In"
-                  )}
-                </AnimatedButton>
-              </Box>
+              <Grid mt={3}>
+                <Grid size={{ md: 12 }}>
+                  <Stack>
+                    <PmsButton
+                      type="submit"
+                      buttonVarient="contained"
+                      name={
+                        loading ? (
+                          <CircularProgress size={24} color="inherit" />
+                        ) : (
+                          "Sign In"
+                        )
+                      }
+                      buttonClick={() => {}}
+                    />
+                  </Stack>
+                </Grid>
+              </Grid>
               <Box mt={2} textAlign="center">
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="#002979">
                   Forgot your password?{" "}
-                  <BackLink to="/forgot-password">Reset it here</BackLink>
+                  <BackLink to="/forgot-password" sx={{ color: "#002979" }}>
+                    Reset it here
+                  </BackLink>
                 </Typography>
               </Box>
             </form>

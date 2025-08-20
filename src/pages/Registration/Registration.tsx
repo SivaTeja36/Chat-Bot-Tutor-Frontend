@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import useNoScroll from '../../hooks/useNoScroll';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import useNoScroll from "../../hooks/useNoScroll";
 import {
   TextField,
   Typography,
@@ -8,12 +9,19 @@ import {
   CircularProgress,
   Box,
   MenuItem,
-} from '@mui/material';
-import { motion } from 'framer-motion';
+  Stack,
+} from "@mui/material";
+import { motion } from "framer-motion";
 
-import AnimatedButton from '../../components/AnimatedButton/AnimatedButton';
-import { authAPI } from '../../services/api';
-import { FullScreenRoot, LeftSide, RightSide, FormPaper, BackLink, textFieldSx, buttonSx } from '../../components/AuthStyles/AuthStyles';
+import { authAPI } from "../../services/api";
+import {
+  FullScreenRoot,
+  LeftSide,
+  RightSide,
+  FormPaper,
+  textFieldSx,
+} from "../../components/AuthStyles/AuthStyles";
+import { PmsButton } from "../../components/ui/button";
 
 // Using AuthStyles components instead of local styled components
 
@@ -29,25 +37,26 @@ const Registration: React.FC = () => {
   useNoScroll();
   const location = useLocation();
   const navigate = useNavigate();
-  const prefilledEmail = location.state?.email || '';
+  const prefilledEmail = location.state?.email || "";
 
   const [formData, setFormData] = useState<FormData>({
-    name: '',
+    name: "",
     email: prefilledEmail,
-    gender: '',
-    role: 'parent',
-    phone_number: '',
+    gender: "",
+    role: "parent",
+    phone_number: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   // Fix: add types for both parameters
-  const handleChange = (field: keyof FormData) => 
+  const handleChange =
+    (field: keyof FormData) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: e.target.value
+        [field]: e.target.value,
       }));
     };
 
@@ -55,16 +64,18 @@ const Registration: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     try {
       await authAPI.sendVerification(formData);
       setSuccess(true);
       setTimeout(() => {
-        navigate('/login', { state: { email: formData.email } });
+        navigate("/login", { state: { email: formData.email } });
       }, 3000);
     } catch (error: unknown) {
       // Fix: Type assertion for error
-      const errMsg = (error as any)?.response?.data?.message || 'Registration failed. Please try again.';
+      const errMsg =
+        (error as any)?.response?.data?.message ||
+        "Registration failed. Please try again.";
       setError(errMsg);
     } finally {
       setLoading(false);
@@ -81,9 +92,9 @@ const Registration: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
             style={{
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'center',
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
               margin: 0,
             }}
           >
@@ -94,7 +105,7 @@ const Registration: React.FC = () => {
                 align="center"
                 color="primary"
                 fontWeight="bold"
-                sx={{ mb: 2, mt: 2, fontSize: '2rem' }}
+                sx={{ mb: 2, mt: 2, fontSize: "2rem" }}
               >
                 Registration Successful! 🎉
               </Typography>
@@ -104,14 +115,11 @@ const Registration: React.FC = () => {
                 color="text.secondary"
                 sx={{ mb: 3 }}
               >
-                We've sent a verification email to {formData.email}. 
-                Please check your inbox and follow the instructions to complete your registration.
+                We've sent a verification email to {formData.email}. Please
+                check your inbox and follow the instructions to complete your
+                registration.
               </Typography>
-              <Typography
-                variant="body2"
-                align="center"
-                color="text.secondary"
-              >
+              <Typography variant="body2" align="center" color="text.secondary">
                 Redirecting to login page...
               </Typography>
             </FormPaper>
@@ -130,9 +138,9 @@ const Registration: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
             margin: 0,
           }}
         >
@@ -141,9 +149,9 @@ const Registration: React.FC = () => {
               variant="h4"
               component="h1"
               align="center"
-              color="primary"
+              color="#002979"
               fontWeight="bold"
-              sx={{ mb: 2, mt: 2, fontSize: '2rem' }}
+              sx={{ mb: 0.5, mt: 2, fontSize: "2rem" }}
             >
               Create Your Account 🚀
             </Typography>
@@ -155,12 +163,16 @@ const Registration: React.FC = () => {
             >
               Fill in your details to join the ChatTutor family!
             </Typography>
-            <form onSubmit={handleSubmit} style={{ width: '100%' }} autoComplete="off">
+            <form
+              onSubmit={handleSubmit}
+              style={{ width: "100%" }}
+              autoComplete="off"
+            >
               <TextField
                 fullWidth
                 label="Full Name"
                 value={formData.name}
-                onChange={handleChange('name')}
+                onChange={handleChange("name")}
                 margin="normal"
                 required
                 variant="outlined"
@@ -171,7 +183,7 @@ const Registration: React.FC = () => {
                 label="Email Address"
                 type="email"
                 value={formData.email}
-                onChange={handleChange('email')}
+                onChange={handleChange("email")}
                 margin="normal"
                 required
                 variant="outlined"
@@ -183,12 +195,12 @@ const Registration: React.FC = () => {
                 select
                 label="Gender"
                 value={formData.gender}
-                onChange={handleChange('gender')}
+                onChange={handleChange("gender")}
                 margin="normal"
                 required
                 variant="outlined"
                 SelectProps={{
-                  MenuProps: { disablePortal: true }
+                  MenuProps: { disablePortal: true },
                 }}
                 sx={textFieldSx}
               >
@@ -199,33 +211,37 @@ const Registration: React.FC = () => {
                 fullWidth
                 label="Phone Number"
                 value={formData.phone_number}
-                onChange={handleChange('phone_number')}
+                onChange={handleChange("phone_number")}
                 margin="normal"
                 required
                 variant="outlined"
-                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', maxLength: 15 }}
+                inputProps={{
+                  inputMode: "numeric",
+                  pattern: "[0-9]*",
+                  maxLength: 15,
+                }}
                 sx={textFieldSx}
               />
               {error && (
-                <Alert severity="error" sx={{ mt: 2, borderRadius: '10px' }}>
+                <Alert severity="error" sx={{ mt: 2, borderRadius: "10px" }}>
                   {error}
                 </Alert>
               )}
               <Box mt={3}>
-                <AnimatedButton
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  disabled={loading}
-                  animationType="bounce"
-                  sx={buttonSx}
-                >
-                  {loading ? (
-                    <CircularProgress size={24} color="inherit" />
-                  ) : (
-                    'Create Account'
-                  )}
-                </AnimatedButton>
+                <Stack>
+                  <PmsButton
+                    buttonVarient="contained"
+                    type="submit"
+                    name={
+                      loading ? (
+                        <CircularProgress size={24} color="inherit" />
+                      ) : (
+                        "Create Account"
+                      )
+                    }
+                    buttonClick={() => {}}
+                  />
+                </Stack>
               </Box>
             </form>
           </FormPaper>

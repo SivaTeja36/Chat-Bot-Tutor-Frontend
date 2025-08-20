@@ -166,6 +166,6 @@ export interface IChatResponse {
 }
 
 export interface IChat {
-  id: number ;
+  id: number;
   message: string;
 }

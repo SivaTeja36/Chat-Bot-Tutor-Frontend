@@ -1,56 +1,57 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   TextField,
   Typography,
   Alert,
   CircularProgress,
   Box,
-} from '@mui/material';
-import { motion } from 'framer-motion';
-import { styled } from '@mui/material/styles';
+  Stack,
+} from "@mui/material";
+import { motion } from "framer-motion";
+import { styled } from "@mui/material/styles";
 
-import AnimatedButton from '../../components/AnimatedButton/AnimatedButton';
-import { authAPI } from '../../services/api';
+import { authAPI } from "../../services/api";
 import {
   FullScreenRoot,
   LeftSide,
   RightSide,
   FormPaper,
   textFieldSx,
-  buttonSx
-} from '../../components/AuthStyles/AuthStyles';
-import useNoScroll from '../../hooks/useNoScroll';
+} from "../../components/AuthStyles/AuthStyles";
+import useNoScroll from "../../hooks/useNoScroll";
+import { PmsButton } from "../../components/ui/button";
 
 // FIX: Styled BackLink definition here
 const BackLink = styled(Link)({
-  textDecoration: 'underline',
-  color: '#1976d2',
-  cursor: 'pointer',
+  textDecoration: "underline",
+  color: "#1976d2",
+  cursor: "pointer",
   fontWeight: 500,
-  '&:hover': {
-    color: '#115293',
+  "&:hover": {
+    color: "#115293",
   },
 });
 
 const ForgotPassword: React.FC = () => {
   useNoScroll();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     try {
       await authAPI.forgotPassword({ email });
       setSuccess(true);
     } catch (error: any) {
       setError(
         error.response?.data?.message ||
-        'Failed to send reset email. Please try again.'
+          "Failed to send reset email. Please try again."
       );
     } finally {
       setLoading(false);
@@ -65,7 +66,12 @@ const ForgotPassword: React.FC = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: 0 }}
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            margin: 0,
+          }}
         >
           <FormPaper elevation={6}>
             {success ? (
@@ -74,9 +80,9 @@ const ForgotPassword: React.FC = () => {
                   variant="h4"
                   component="h1"
                   align="center"
-                  color="primary"
+                  color="#002979"
                   fontWeight="bold"
-                  sx={{ mb: 2, fontSize: '2rem' }}
+                  sx={{ mb: 0.5, fontSize: "2rem" }}
                 >
                   Email Sent! 📧
                 </Typography>
@@ -90,9 +96,7 @@ const ForgotPassword: React.FC = () => {
                   Please check your inbox and follow the instructions.
                 </Typography>
                 <Box textAlign="center">
-                  <BackLink to="/login">
-                    Back to Login
-                  </BackLink>
+                  <BackLink to="/login">Back to Login</BackLink>
                 </Box>
               </>
             ) : (
@@ -101,9 +105,9 @@ const ForgotPassword: React.FC = () => {
                   variant="h4"
                   component="h1"
                   align="center"
-                  color="primary"
+                  color="#002979"
                   fontWeight="bold"
-                  sx={{ mb: 2, fontSize: '2rem' }}
+                  sx={{ mb: 0.5, fontSize: "2rem" }}
                 >
                   Reset Password 🔐
                 </Typography>
@@ -113,9 +117,13 @@ const ForgotPassword: React.FC = () => {
                   color="text.secondary"
                   sx={{ mb: 3 }}
                 >
-                  Enter your email address and we'll send you a link to reset your password.
+                  Enter your email address and we'll send you a link to reset
+                  your password.
                 </Typography>
-                <form onSubmit={handleSubmit} style={{ width: '100%', margin: 0 }}>
+                <form
+                  onSubmit={handleSubmit}
+                  style={{ width: "100%", margin: 0 }}
+                >
                   <TextField
                     fullWidth
                     label="Email Address"
@@ -127,30 +135,30 @@ const ForgotPassword: React.FC = () => {
                     sx={textFieldSx}
                   />
                   {error && (
-                    <Alert severity="error" sx={{ mt: 1, borderRadius: '8px' }}>
+                    <Alert severity="error" sx={{ mt: 1, borderRadius: "8px" }}>
                       {error}
                     </Alert>
                   )}
-                  <Box mt={3}>
-                    <AnimatedButton
-                      fullWidth
-                      variant="contained"
-                      type="submit"
-                      disabled={loading || !email}
-                      animationType="bounce"
-                      sx={buttonSx}
-                    >
-                      {loading ? (
-                        <CircularProgress size={24} color="inherit" />
-                      ) : (
-                        'Send Reset Link'
-                      )}
-                    </AnimatedButton>
+                  <Box mt={1}>
+                    <Stack>
+                      <PmsButton
+                        type="submit"
+                        buttonVarient="contained"
+                        name={
+                          loading ? (
+                            <CircularProgress size={24} color="inherit" />
+                          ) : (
+                            "Send Reset Link"
+                          )
+                        }
+                        buttonClick={() => {}}
+                      />
+                    </Stack>
                   </Box>
                   <Box mt={2} textAlign="center">
                     <Typography variant="body2" color="text.secondary">
-                      Remember your password?{' '}
-                      <BackLink to="/login">
+                      Remember your password?{" "}
+                      <BackLink to="/login" sx={{ color: "#002979" }}>
                         Back to Login
                       </BackLink>
                     </Typography>
