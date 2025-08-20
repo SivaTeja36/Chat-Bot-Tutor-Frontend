@@ -4,7 +4,6 @@ import {
   Typography,
   Grid,
   Box,
-  Button,
   Paper,
   Dialog,
   DialogTitle,
@@ -14,6 +13,7 @@ import {
   Tooltip,
   Avatar,
   InputAdornment,
+  useTheme
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SmsOutlinedIcon from "@mui/icons-material/SmsOutlined";
@@ -28,7 +28,6 @@ import { kidsAPI } from "../../../services/api";
 import { PmsButton } from "../../../components/ui/button";
 import {
   GetQuestionsHistoryResponse,
-  IGetChat,
   IGetChatResponse,
 } from "../../../types/api";
 
@@ -160,12 +159,10 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
   const handleStoreId = (id: number) => {
     setSelectedChatId(id);
   };
-
+  const theme = useTheme();
   // Helper: Colorful gradients
-  const userBubbleGradient =
-    "linear-gradient(120deg, #d1c4e9 0%, #b2dfdb 100%)";
-  const tutorBubbleGradient =
-    "linear-gradient(125deg, #fffde7 0%, #81d4fa 100%)";
+  const userBubbleGradient = "linear-gradient(90deg, #FFB300 0%, #FFA000 100%)"; // slightly golden-solid
+  const tutorBubbleGradient = "linear-gradient(90deg, #42A5F5 0%, #1976D2 100%)"; // vibrant blue blend
 
   // Emoji picker (placeholder)
   const handleEmojiClick = (emoji: string) => {
@@ -362,11 +359,11 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
               mt: 4,
             }}
           >
-            <Stack direction={"row"} alignItems={"center"} gap={1}>
-              <Avatar alt="AI Tutor" sx={{ bgcolor: "#1976d2" }}>
+            <Stack direction={"row"} alignItems={"center"} gap={1} sx={{ mb: 1 }}  >
+              <Avatar alt="AI Tutor" sx={{ bgcolor: "#002979" }}>
                 🤖
               </Avatar>
-              <Typography variant="h6" color="primary">
+              <Typography variant="h6" color="#002979">
                 Chat with Tutor
               </Typography>
             </Stack>
@@ -425,7 +422,7 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
                       >
                         <Avatar
                           sx={{
-                            bgcolor: "#a5d6a7",
+                            bgcolor: "#ffb200",
                             color: "#1565c0",
                             ml: 1,
                             width: 38,
@@ -468,7 +465,7 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
                           >
                             <Avatar
                               sx={{
-                                bgcolor: "#ffd54f",
+                                bgcolor: "#00A7E1",
                                 color: "#33691e",
                                 mr: 1,
                                 width: 38,
@@ -517,7 +514,7 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
                     >
                       <Avatar
                         sx={{
-                          bgcolor: "#ffd54f",
+                          bgcolor: "#00A7E1",
                           color: "#1565c0",
                           width: 38,
                           height: 38,
