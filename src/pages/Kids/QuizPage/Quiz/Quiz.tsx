@@ -246,7 +246,7 @@ const wrongAnswerShake = {
 };
 
 const getBGGradient = () =>
-  "linear-gradient(117deg,#eaf6fd 0%,#f1eafb 40%,#f9e3f2 100%)";
+  "#FFFFFF"; // Use same white background as main application
 
 const Quiz: React.FC = () => {
   const theme = useTheme();
@@ -329,7 +329,7 @@ const Quiz: React.FC = () => {
         justifyContent: "center",
         overflow: "hidden !important",
         zIndex: 0,
-        p: 0,
+        p: 2,
         m: 0
       }}
     >
@@ -343,9 +343,9 @@ const Quiz: React.FC = () => {
           width: "100%",
           maxWidth: 430,
           mx: "auto",
-          borderRadius: 5,
-          boxShadow: "0 4px 32px 0 #b8b0ec33",
-          background: "#fff",
+          borderRadius: 4,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+          background: "#FFFFFF",
           p: { xs: 2, sm: 2.5 },
           display: "flex",
           alignItems: "center",
@@ -377,7 +377,7 @@ const Quiz: React.FC = () => {
                   variant="h5"
                   gutterBottom
                   fontWeight={700}
-                  color="#287af9"
+                  color="#2196F3"
                   sx={{ mb: 2.5, mt: 1, letterSpacing: 1, textAlign: "center" }}
                 >
                   <span role="img" aria-label="rocket">🚀</span> Choose a Subject
@@ -398,12 +398,12 @@ const Quiz: React.FC = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.07 * i }}
                       style={{
-                        borderRadius: 15,
-                        border: "2px solid #d2dcf0",
-                        background: "linear-gradient(135deg,#f8fafd 60%,#f4f0ff 100%)",
+                        borderRadius: 12,
+                        border: "2px solid #2196F3",
+                        background: "#FFFFFF",
                         minHeight: 80,
                         cursor: "pointer",
-                        boxShadow: "0 1.5px 6px #d6d7f544",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
@@ -412,7 +412,7 @@ const Quiz: React.FC = () => {
                       onClick={() => handleSubjectSelection(sub.key as keyof typeof quizData)}
                     >
                       <span style={{ fontSize: 33, marginBottom: 6 }}>{sub.icon}</span>
-                      <Typography fontWeight={700} fontSize={17}>{sub.label}</Typography>
+                      <Typography fontWeight={700} fontSize={17} color="#212121">{sub.label}</Typography>
                     </motion.div>
                   ))}
                 </Box>
@@ -437,24 +437,24 @@ const Quiz: React.FC = () => {
                 <Typography
                   variant="h6"
                   fontWeight={700}
-                  sx={{ color: "#287af9", mt: 1.5 }}
+                  sx={{ color: "#2196F3", mt: 1.5 }}
                   gutterBottom
                 >
                   {score > quizData[selectedSubject].length / 2
                     ? getCelebrationMessage() : "Nice Try! 🚀"}
                 </Typography>
-                <Typography variant="body1" color="#287af9" sx={{ mt: 1 }}>
+                <Typography variant="body1" color="#2196F3" sx={{ mt: 1 }}>
                   You scored <b>{score}</b> out of {quizData[selectedSubject].length}
                 </Typography>
                 <Box mb={2}>
                   <LinearProgress
-                    color="success"
+                    color="primary"
                     variant="determinate"
                     value={score / quizData[selectedSubject].length * 100}
                     sx={{
                       height: 9,
                       borderRadius: 5,
-                      bgcolor: '#eaf3f8',
+                      bgcolor: 'rgba(0,0,0,0.1)',
                       my: 1.3
                     }}
                   />
@@ -487,19 +487,19 @@ const Quiz: React.FC = () => {
                     <span style={{ fontSize: 22 }}>
                       {subjectMeta.find(s => s.key === selectedSubject)?.icon}
                     </span>
-                    <Typography fontWeight={700} color="#287af9" sx={{ fontSize: 18 }}>
+                    <Typography fontWeight={700} color="#2196F3" sx={{ fontSize: 18 }}>
                       {subjectMeta.find(s => s.key === selectedSubject)?.label}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.2 }}>
-                    <Typography variant="subtitle1" color="#b7b2c0">Question {currentQuestionIndex + 1}</Typography>
-                    <Typography variant="subtitle2" color="#9891a9">Score: <b>{score}</b></Typography>
+                    <Typography variant="subtitle1" color="#757575">Question {currentQuestionIndex + 1}</Typography>
+                    <Typography variant="subtitle2" color="#757575">Score: <b>{score}</b></Typography>
                   </Box>
                   <LinearProgress
                     variant="determinate"
                     value={((currentQuestionIndex) / quizData[selectedSubject].length) * 100}
                     sx={{
-                      height: 7, borderRadius: 3, bgcolor: "#ede9f3", mt: 0.7
+                      height: 7, borderRadius: 3, bgcolor: "rgba(0,0,0,0.1)", mt: 0.7
                     }}
                   />
                 </Box>
@@ -508,14 +508,14 @@ const Quiz: React.FC = () => {
                   elevation={0}
                   sx={{
                     borderRadius: 4,
-                    background: "linear-gradient(120deg,#f6f7ff 60%,#f0eeff 100%)",
-                    border: "1.6px solid #efe8fa",
+                    background: "rgba(0,0,0,0.03)",
+                    border: "1px solid #2196F3",
                     p: 1.5,
                     mb: 2.2,
-                    boxShadow: "0 2px 8px #e5e3ff18"
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
                   }}
                 >
-                  <Typography variant="subtitle1" fontWeight={600} color="#243556" sx={{ fontSize: 16 }}>
+                  <Typography variant="subtitle1" fontWeight={600} color="#212121" sx={{ fontSize: 16 }}>
                     {quizData[selectedSubject][currentQuestionIndex].question}
                   </Typography>
                 </Paper>

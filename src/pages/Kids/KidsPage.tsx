@@ -16,9 +16,6 @@ import {
   TextField,
   DialogActions,
   LinearProgress,
-  Paper,
-  CircularProgress,
-  Divider,
   Stack,
 } from "@mui/material";
 import {
@@ -27,20 +24,20 @@ import {
   Delete,
   Chat,
   Quiz,
-  TrendingUp,
-  Send,
+  Security as SecurityIcon,
 } from "@mui/icons-material";
 import { kidsAPI } from "../../services/api";
 import { GetKidResponse, KidRequest } from "../../types/api";
 import ChatPage from "./ChatPage";
 import { PmsButton } from "../../components/ui/button";
 
+const HANDOVER_KEY = "handedOverKidId_2025";
+
 const Kids = () => {
   const navigate = useNavigate();
   const [kids, setKids] = useState<GetKidResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
-  const [openChatDialog, setOpenChatDialog] = useState(false);
   const [selectedKid, setSelectedKid] = useState<GetKidResponse | null>(null);
   const [newKid, setNewKid] = useState<KidRequest>({
     name: "",
@@ -50,11 +47,24 @@ const Kids = () => {
     standard: "",
   });
   const [question, setQuestion] = useState("");
-  const [chatHistory, setChatHistory] = useState<
-    { question: string; answer: string }[]
-  >([]);
+  const [chatHistory, setChatHistory] = useState<{ question: string; answer: string }[]>([]);
   const [askingQuestion, setAskingQuestion] = useState(false);
   const [kidPage, setKidPage] = useState("kidPage");
+  const [handedOverKidId, setHandedOverKidId] = useState<number | null>(() => {
+    const id = localStorage.getItem(HANDOVER_KEY);
+    return id ? parseInt(id) : null;
+  });
+
+  // On handoverKidId change, keep in localStorage
+  useEffect(() => {
+    if (handedOverKidId !== null) {
+      localStorage.setItem(HANDOVER_KEY, handedOverKidId.toString());
+    } else {
+      localStorage.removeItem(HANDOVER_KEY);
+    }
+  }, [handedOverKidId]);
+
+  const isParentMode = handedOverKidId === null;
 
   const fetchKids = async () => {
     try {
@@ -62,10 +72,10 @@ const Kids = () => {
       setKids(response.data.data);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching kids:", error);
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchKids();
   }, []);
@@ -77,6 +87,7 @@ const Kids = () => {
   };
 
   const handleEditKid = (kid: GetKidResponse) => {
+    if (!isParentMode) return;
     setSelectedKid(kid);
     setNewKid({
       name: kid.name,
@@ -104,333 +115,230 @@ const Kids = () => {
         setKids([...kids, createdKid]);
       }
       setOpenDialog(false);
-    } catch (error) {
-      console.error("Error saving kid:", error);
-    }
+    } catch (error) {}
   };
 
   const handleDeleteKid = async (kidId: number) => {
+    if (!isParentMode) return;
     try {
       await kidsAPI.deleteKid(kidId);
       setKids(kids.filter((kid) => kid.id !== kidId));
-    } catch (error) {
-      console.error("Error deleting kid:", error);
-    }
+    } catch (error) {}
   };
 
-  // const handleOpenChatDialog = async (kid: GetKidResponse) => {
-  //   setSelectedKid(kid);
-  //   setQuestion("");
-  //   setOpenChatDialog(true);
-  //   setAskingQuestion(true);
-
-  //   try {
-  //     // Fetch question history when opening chat dialog
-  //     const historyResponse = await kidsAPI.getQuestionsHistory(kid.id);
-
-  //     if (
-  //       historyResponse.data &&
-  //       historyResponse.data.data &&
-  //       historyResponse.data.data.length > 0
-  //     ) {
-  //       // Convert the history response to our chat history format
-  //       const formattedHistory = historyResponse.data.data.map((item) => ({
-  //         question: item.question,
-  //         answer:
-  //           item.answer ||
-  //           "I processed your question. Let me think about that!",
-  //       }));
-
-  //       setChatHistory(formattedHistory);
-  //     } else {
-  //       // If no history, show empty chat
-  //       setChatHistory([]);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching question history:", error);
-  //     setChatHistory([]);
-  //   } finally {
-  //     setAskingQuestion(false);
-  //   }
-  // };
-
-  const handleCloseChat = () => {
-    setOpenChatDialog(false);
+  const handleHandover = (kidId: number) => {
+    if (handedOverKidId !== null) return;
+    setHandedOverKidId(kidId);
   };
 
-  const handleAskQuestion = async () => {
-    if (!question.trim() || !selectedKid) return;
+  const isKidProtected = (kidId: number) =>
+    handedOverKidId !== null && handedOverKidId !== kidId;
 
-    // Add user question to chat history
-    const newQuestion = { question, answer: "" };
-    setChatHistory((prevHistory) => [...prevHistory, newQuestion]);
-    setAskingQuestion(true);
+  // Card styles helper
+  const getCardSX = (protectedCard, activeCard) => ({
+    boxShadow: "0.75",
+    border: activeCard ? "2px solid #50b750" : "1px solid #efefef",
+    borderRadius: "14px",
+    background: protectedCard
+      ? "#fcfcfc"
+      : activeCard
+      ? "#eafeec"
+      : "background.paper",
+    opacity: protectedCard ? 1 : 1,
+    position: "relative",
+    transition: "all 0.3s",
+    minHeight: 370,
+    pointerEvents: protectedCard ? "auto" : "auto",
+    filter: "none",
+  });
 
-    try {
-      // Send question to API
-      await kidsAPI.createQuestion(selectedKid.id, { question });
+  // === Kid Card ===
+  const KidCard = ({ kid }) => {
+    const protectedCard = isKidProtected(kid.id);
+    const activeCard = handedOverKidId === kid.id;
+    // All three buttons always shown; disabled on protected cards except in parent mode/active card
 
-      // Get questions history after creating the question
-      const historyResponse = await kidsAPI.getQuestionsHistory(selectedKid.id);
-
-      // Update chat history with the latest questions and answers
-      if (
-        historyResponse.data &&
-        historyResponse.data.data &&
-        historyResponse.data.data.length > 0
-      ) {
-        // Convert the history response to our chat history format
-        const formattedHistory = historyResponse.data.data.map((item) => ({
-          question: item.question,
-          answer:
-            item.answer ||
-            "I processed your question. Let me think about that!",
-        }));
-
-        setChatHistory(formattedHistory);
-      } else {
-        // If no history is returned, update just the current question
-        setChatHistory((prevHistory) => {
-          const updatedHistory = [...prevHistory];
-          const lastQuestion = updatedHistory[updatedHistory.length - 1];
-          lastQuestion.answer =
-            "I processed your question. Let me think about that!";
-          return updatedHistory;
-        });
-      }
-
-      setQuestion("");
-    } catch (error) {
-      console.error("Error asking question:", error);
-      // Add error message to chat history
-      setChatHistory((prevHistory) => {
-        const updatedHistory = [...prevHistory];
-        const lastQuestion = updatedHistory[updatedHistory.length - 1];
-        lastQuestion.answer =
-          "Sorry, I had trouble processing your question. Please try again.";
-        return updatedHistory;
-      });
-    } finally {
-      setAskingQuestion(false);
-    }
-  };
-
-  const KidCard = ({ kid }: { kid: GetKidResponse }) => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card
-        className="card-interactive h-full relative overflow-hidden "
-        sx={{
-          boxShadow: "0.75",
-          border: "1px solid #efefef",
-          borderRadius: "8px",
-        }}
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        whileHover={protectedCard ? {} : { y: -4 }}
+        transition={{ duration: 0.2 }}
       >
-        {/* Action Buttons */}
-        <Box className="absolute top-2 right-2 z-10 flex gap-1">
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <IconButton
-              size="small"
-              onClick={() => handleEditKid(kid)}
+        <Card sx={getCardSX(protectedCard, activeCard)}>
+          {/* Protected label/icon at top right when locked */}
+          {protectedCard && (
+            <Box
               sx={{
-                bgcolor: "background.paper",
-                "&:hover": { bgcolor: "primary.main", color: "white" },
+                position: "absolute",
+                top: 14,
+                right: 22,
+                display: "flex",
+                alignItems: "center",
+                zIndex: 5,
               }}
             >
-              <Edit fontSize="small" />
-            </IconButton>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <IconButton
-              size="small"
-              onClick={() => handleDeleteKid(kid.id)}
-              sx={{
-                bgcolor: "background.paper",
-                "&:hover": { bgcolor: "error.main", color: "white" },
-              }}
-            >
-              <Delete fontSize="small" />
-            </IconButton>
-          </motion.div>
-        </Box>
-
-        <CardContent sx={{ pb: 2 }}>
-          {/* Kid Info */}
-          <Box className="flex items-center gap-3 mb-4">
-            <Avatar
-              sx={{
-                width: 70,
-                height: 70,
-                bgcolor: "#d6ecff",
-                fontSize: "24px",
-                fontWeight: "500",
-                color: "#002979 ",
-              }}
-            >
-              {kid?.name?.charAt(0).toUpperCase()}
-            </Avatar>
-            <Box>
-              <Typography
-                variant="h6"
-                className="font-bold"
-                sx={{ color: "#002979" }}
+              <SecurityIcon sx={{ color: "#b71c1c", fontSize: 22, mr: 0.7 }} />
+              <Typography variant="body2" sx={{ color: "#c62828", fontWeight: 500 }}>
+                Protected
+              </Typography>
+            </Box>
+          )}
+          {/* Action Buttons (parent mode only, not protected) */}
+          {!protectedCard && isParentMode && (
+            <Box className="absolute top-2 right-2 z-10 flex gap-1">
+              <IconButton
+                size="small"
+                onClick={() => handleEditKid(kid)}
+                sx={{
+                  bgcolor: "background.paper",
+                  "&:hover": { bgcolor: "primary.main", color: "white" },
+                }}
               >
-                {kid?.name}
-              </Typography>
-              <Typography variant="body2" className="text-muted-foreground">
-                Age {kid?.age} • {kid?.standard}
-              </Typography>
-              <Typography variant="caption" className="text-muted-foreground">
-                {kid?.school}
-              </Typography>
+                <Edit fontSize="small" />
+              </IconButton>
+              <IconButton
+                size="small"
+                onClick={() => handleDeleteKid(kid.id)}
+                sx={{
+                  bgcolor: "background.paper",
+                  "&:hover": { bgcolor: "error.main", color: "white" },
+                }}
+              >
+                <Delete fontSize="small" />
+              </IconButton>
             </Box>
-          </Box>
-
-          {/* Stats */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid size={4}>
-              <Box className="text-center">
+          )}
+          <CardContent sx={{ pb: 2 }}>
+            <Box className="flex items-center gap-3 mb-4">
+              <Avatar
+                sx={{
+                  width: 70,
+                  height: 70,
+                  bgcolor: "#d6ecff",
+                  fontSize: "24px",
+                  fontWeight: "500",
+                  color: "#002979 ",
+                  border: activeCard ? "2.5px solid #50b750" : undefined,
+                }}
+              >
+                {kid?.name?.charAt(0).toUpperCase()}
+              </Avatar>
+              <Box>
                 <Typography
                   variant="h6"
+                  className="font-bold"
                   sx={{ color: "#002979" }}
-                  className="font-bold text-primary"
                 >
-                  {0} {/* Placeholder */}
+                  {kid?.name}
+                </Typography>
+                <Typography variant="body2" className="text-muted-foreground">
+                  Age {kid?.age} • {kid?.standard}
                 </Typography>
                 <Typography variant="caption" className="text-muted-foreground">
-                  Quizzes
+                  {kid?.school}
                 </Typography>
               </Box>
-            </Grid>
-            <Grid size={4}>
-              <Box className="text-center">
-                <Typography
-                  variant="h6"
-                  sx={{ color: "#002979" }}
-                  className="font-bold text-success"
-                >
-                  {0}% {/* Placeholder */}
-                </Typography>
-                <Typography variant="caption" className="text-muted-foreground">
-                  Avg Score
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid size={4}>
-              <Box className="text-center">
-                <Typography
-                  variant="h6"
-                  sx={{ color: "#002979" }}
-                  className="font-bold text-warning"
-                >
-                  {0}h {/* Placeholder */}
-                </Typography>
-                <Typography variant="caption" className="text-muted-foreground">
-                  Study Time
-                </Typography>
-              </Box>
-            </Grid>
-          </Grid>
-
-          {/* Progress Bar */}
-          <Box className="mb-3">
-            <Box className="flex justify-between items-center mb-1">
-              <Typography variant="body2" className="font-medium">
-                Learning Progress
-              </Typography>
-              <Typography variant="body2" className="text-primary font-bold">
-                {0}% {/* Placeholder */}
-              </Typography>
             </Box>
-            <LinearProgress
-              variant="determinate"
-              value={0}
-              sx={{
-                height: 8,
-                borderRadius: 4,
-                backgroundColor: "action.hover",
-                "& .MuiLinearProgress-bar": {
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={4}>
+                <Box className="text-center">
+                  <Typography variant="h6" sx={{ color: "#002979" }} className="font-bold text-primary">
+                    {0}
+                  </Typography>
+                  <Typography variant="caption" className="text-muted-foreground">
+                    Quizzes
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={4}>
+                <Box className="text-center">
+                  <Typography variant="h6" sx={{ color: "#002979" }} className="font-bold text-success">
+                    {0}%
+                  </Typography>
+                  <Typography variant="caption" className="text-muted-foreground">
+                    Avg Score
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={4}>
+                <Box className="text-center">
+                  <Typography variant="h6" sx={{ color: "#002979" }} className="font-bold text-warning">
+                    {0}h
+                  </Typography>
+                  <Typography variant="caption" className="text-muted-foreground">
+                    Study Time
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+            <Box className="mb-3">
+              <Box className="flex justify-between items-center mb-1">
+                <Typography variant="body2" className="font-medium">Learning Progress</Typography>
+                <Typography variant="body2" className="text-primary font-bold">{0}%</Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={0}
+                sx={{
+                  height: 8,
                   borderRadius: 4,
-                  background: "linear-gradient(135deg, #1976d2, #42a5f5)",
-                },
-              }}
-            />
-          </Box>
-
-          {/* Achievements */}
-          <Box className="mb-4">
-            <Typography variant="body2" className="font-medium mb-2">
-              Recent Achievements
-            </Typography>
-            <Box className="flex flex-wrap gap-1">{/* Placeholder */}</Box>
-          </Box>
-
-          {/* Action Buttons */}
-          <Stack direction={"row"} gap={1}>
-            <PmsButton
-              buttonVarient="outlined"
-              name={"Chat"}
-              buttonClick={() => {
-                setSelectedKid(kid);
-                setKidPage("chatPage");
-              }}
-              startIcon={<Chat />}
-            />
-            <PmsButton
-              buttonVarient="outlined"
-              name={"Quiz"}
-              buttonClick={() => navigate("/kids/quiz")}
-              startIcon={<Quiz />}
-            />
-            <PmsButton
-              buttonVarient="outlined"
-              name={"Progress"}
-              buttonClick={() => {}}
-              startIcon={<TrendingUp />}
-            />
-          </Stack>
-          {/* <Grid container spacing={1}>
-            <Grid size={4}>
+                  backgroundColor: "action.hover",
+                  "& .MuiLinearProgress-bar": {
+                    borderRadius: 4,
+                    background: "linear-gradient(135deg, #1976d2, #42a5f5)",
+                  },
+                }}
+              />
+            </Box>
+            <Box className="mb-4">
+              <Typography variant="body2" className="font-medium mb-2">
+                Recent Achievements
+              </Typography>
+              <Box className="flex flex-wrap gap-1">{/* Placeholder */}</Box>
+            </Box>
+            {/* ---- Always show all three buttons. Disable if protected, else parent/handed can activate ---- */}
+            <Stack direction={"row"} gap={1}>
+              <PmsButton
+                buttonVarient="contained"
+                name={"Handover"}
+                buttonClick={() => handleHandover(kid.id)}
+                startIcon={<SecurityIcon />}
+                isDisable={handedOverKidId !== null}
+              />
               <PmsButton
                 buttonVarient="outlined"
                 name={"Chat"}
                 buttonClick={() => {
-                  setSelectedKid(kid);
-                  setKidPage("chatPage");
+                  if (!(protectedCard)) {
+                    setSelectedKid(kid);
+                    setKidPage("chatPage");
+                  }
                 }}
                 startIcon={<Chat />}
+                isDisable={protectedCard}
               />
-            </Grid>
-            <Grid size={4}>
               <PmsButton
                 buttonVarient="outlined"
                 name={"Quiz"}
-                buttonClick={() => {}}
+                buttonClick={() => {
+                  if (!(protectedCard)) {
+                    navigate("/kids/quiz");
+                  }
+                }}
                 startIcon={<Quiz />}
+                isDisable={protectedCard}
               />
-            </Grid>
-            <Grid size={4}>
-              <PmsButton
-                buttonVarient="outlined"
-                name={"Progress"}
-                buttonClick={() => {}}
-                startIcon={<TrendingUp />}
-              />
-            </Grid>
-          </Grid> */}
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
+            </Stack>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  };
 
   return (
     <Container maxWidth="xl" sx={{ py: 2 }}>
-      {/* Header */}
       {kidPage === "kidPage" ? (
         <>
           <motion.div
@@ -443,23 +351,20 @@ const Kids = () => {
                 <Typography fontSize={"24px"} fontWeight={600}>
                   Your Kids 👨‍👩‍👧‍👦
                 </Typography>
-                <Typography
-                  fontSize={"14px"}
-                  fontWeight={400}
-                  color="textDisabled"
-                >
+                <Typography fontSize={"14px"} fontWeight={400} color="textDisabled">
                   Manage and track your children's learning progress
                 </Typography>
               </Box>
-              <PmsButton
-                buttonVarient="contained"
-                name={"Add New Kid"}
-                buttonClick={handleAddKid}
-                startIcon={<Add />}
-              />
+              {isParentMode && (
+                <PmsButton
+                  buttonVarient="contained"
+                  name={"Add New Kid"}
+                  buttonClick={handleAddKid}
+                  startIcon={<Add />}
+                />
+              )}
             </Box>
           </motion.div>
-
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -467,11 +372,10 @@ const Kids = () => {
           >
             <Box className="mb-6"></Box>
           </motion.div>
-
           <Grid container spacing={3}>
             <AnimatePresence>
               {kids.map((kid, index) => (
-                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={kid.id}>
+                <Grid item xs={12} sm={6} lg={4} key={kid.id}>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -485,12 +389,8 @@ const Kids = () => {
           </Grid>
         </>
       ) : (
-        <>
-          <ChatPage setKidPage={setKidPage} kidId={selectedKid?.id ?? 0} />
-        </>
+        <ChatPage setKidPage={setKidPage} kidId={selectedKid?.id ?? 0} />
       )}
-
-      {/* Add/Edit Kid Dialog */}
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
@@ -500,7 +400,7 @@ const Kids = () => {
         <DialogTitle>{selectedKid ? "Edit Kid" : "Add New Kid"}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid size={12}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Full Name"
@@ -509,7 +409,7 @@ const Kids = () => {
                 variant="outlined"
               />
             </Grid>
-            <Grid size={6}>
+            <Grid item xs={6}>
               <TextField
                 fullWidth
                 label="Age"
@@ -521,7 +421,7 @@ const Kids = () => {
                 variant="outlined"
               />
             </Grid>
-            <Grid size={6}>
+            <Grid item xs={6}>
               <TextField
                 fullWidth
                 label="Grade/Standard"
@@ -532,7 +432,7 @@ const Kids = () => {
                 variant="outlined"
               />
             </Grid>
-            <Grid size={12}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="School Name"
@@ -555,157 +455,12 @@ const Kids = () => {
             buttonVarient="contained"
             name={selectedKid ? "Update" : "Add Kid"}
             buttonClick={handleSaveKid}
-            startIcon={<TrendingUp />}
+            startIcon={<SecurityIcon />}
             isDisable={
               !newKid.name || !newKid.age || !newKid.school || !newKid.standard
             }
           />
         </DialogActions>
-      </Dialog>
-
-      {/* Chat Dialog */}
-      <Dialog
-        open={openChatDialog}
-        onClose={handleCloseChat}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-            overflow: "hidden",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            bgcolor: "primary.main",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <Chat fontSize="small" />
-          Chat with Tutor {selectedKid && `- ${selectedKid.name}`}
-        </DialogTitle>
-
-        <DialogContent
-          sx={{
-            p: 2,
-            height: "400px",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Box sx={{ flexGrow: 1, overflow: "auto", mb: 2, p: 1 }}>
-            {chatHistory.length === 0 ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: "100%",
-                  opacity: 0.7,
-                }}
-              >
-                <Typography
-                  variant="body1"
-                  sx={{ mb: 1, fontWeight: "medium" }}
-                >
-                  Ask me anything about your studies!
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  I'm here to help with your questions.
-                </Typography>
-              </Box>
-            ) : (
-              chatHistory.map((chat, index) => (
-                <Box key={index} sx={{ mb: 2 }}>
-                  {/* Question */}
-                  <Box
-                    sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}
-                  >
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 1.5,
-                        bgcolor: "primary.light",
-                        color: "primary.contrastText",
-                        borderRadius: "12px 12px 0 12px",
-                        maxWidth: "80%",
-                      }}
-                    >
-                      <Typography variant="body2">{chat.question}</Typography>
-                    </Paper>
-                  </Box>
-
-                  {/* Answer */}
-                  {chat.answer ? (
-                    <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-                      <Paper
-                        elevation={0}
-                        sx={{
-                          p: 1.5,
-                          bgcolor: "grey.100",
-                          borderRadius: "12px 12px 12px 0",
-                          maxWidth: "80%",
-                        }}
-                      >
-                        <Typography variant="body2">{chat.answer}</Typography>
-                      </Paper>
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-                      <Paper
-                        elevation={0}
-                        sx={{
-                          p: 1.5,
-                          bgcolor: "grey.100",
-                          borderRadius: "12px 12px 12px 0",
-                          maxWidth: "80%",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                        }}
-                      >
-                        <CircularProgress size={16} />
-                        <Typography variant="body2">Thinking...</Typography>
-                      </Paper>
-                    </Box>
-                  )}
-                </Box>
-              ))
-            )}
-            {askingQuestion && (
-              <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-                <CircularProgress size={24} />
-              </Box>
-            )}
-          </Box>
-
-          <Divider sx={{ mb: 2 }} />
-
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <TextField
-              fullWidth
-              placeholder="Ask a question..."
-              variant="outlined"
-              size="small"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleAskQuestion()}
-              disabled={askingQuestion}
-            />
-            <PmsButton
-              buttonVarient="contained"
-              startIcon={<Send />}
-              name={"Ask"}
-              buttonClick={handleAskQuestion}
-              isDisable={!question.trim() || askingQuestion}
-            />
-          </Box>
-        </DialogContent>
       </Dialog>
     </Container>
   );
