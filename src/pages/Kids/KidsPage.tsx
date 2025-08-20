@@ -47,11 +47,11 @@ const Kids = () => {
     school: "",
     standard: "",
   });
-  const [question, setQuestion] = useState("");
-  const [chatHistory, setChatHistory] = useState<
-    { question: string; answer: string }[]
-  >([]);
-  const [askingQuestion, setAskingQuestion] = useState(false);
+  // const [question, setQuestion] = useState("");
+  // const [chatHistory, setChatHistory] = useState<
+  //   { question: string; answer: string }[]
+  // >([]);
+  // const [askingQuestion, setAskingQuestion] = useState(false);
   const [kidPage, setKidPage] = useState("kidPage");
   const [handedOverKidId, setHandedOverKidId] = useState<number | null>(() => {
     const id = localStorage.getItem(HANDOVER_KEY);
@@ -118,7 +118,9 @@ const Kids = () => {
         setKids([...kids, createdKid]);
       }
       setOpenDialog(false);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleDeleteKid = async (kidId: number) => {
@@ -158,7 +160,7 @@ const Kids = () => {
   });
 
   // === Kid Card ===
-  const KidCard = ({ kid }) => {
+  const KidCard = ({ kid }: any) => {
     const protectedCard = isKidProtected(kid.id);
     const activeCard = handedOverKidId === kid.id;
     // All three buttons always shown; disabled on protected cards except in parent mode/active card
@@ -412,7 +414,7 @@ const Kids = () => {
           <Grid container spacing={3}>
             <AnimatePresence>
               {kids.map((kid, index) => (
-                <Grid item xs={12} sm={6} lg={4} key={kid.id}>
+                <Grid size={{ lg: 4, xs: 12, sm: 6 }} key={kid.id}>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -437,7 +439,7 @@ const Kids = () => {
         <DialogTitle>{selectedKid ? "Edit Kid" : "Add New Kid"}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={{ md: 12, sm: 12 }}>
               <TextField
                 fullWidth
                 label="Full Name"
@@ -446,7 +448,7 @@ const Kids = () => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ md: 6, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Age"
@@ -458,7 +460,7 @@ const Kids = () => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ md: 6, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Grade/Standard"
@@ -469,7 +471,7 @@ const Kids = () => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ md: 12, sm: 12 }}>
               <TextField
                 fullWidth
                 label="School Name"
