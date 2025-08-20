@@ -6,7 +6,6 @@ import {
   LinearProgress,
   Box,
   Paper,
-  useTheme,
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
@@ -277,11 +276,11 @@ const wrongAnswerShake = {
   transition: { duration: 0.45 },
 };
 
-const getBGGradient = () =>
-  "linear-gradient(117deg,#eaf6fd 0%,#f1eafb 40%,#f9e3f2 100%)";
+// const getBGGradient = () =>
+//   "linear-gradient(117deg,#eaf6fd 0%,#f1eafb 40%,#f9e3f2 100%)";
 
 const Quiz: React.FC = () => {
-  const theme = useTheme();
+  // const theme = useTheme();
   const [selectedSubject, setSelectedSubject] = useState<
     keyof typeof quizData | null
   >(null);
@@ -358,11 +357,8 @@ const Quiz: React.FC = () => {
   return (
     <Box
       sx={{
-        position: "absolute",
-        inset: 0,
-        width: "100vw",
-        minHeight: "100vh",
-        background: getBGGradient(),
+        minHeight: "70vh",
+        background: "#ececec38",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -385,9 +381,9 @@ const Quiz: React.FC = () => {
       <Card
         sx={{
           width: "100%",
-          maxWidth: 430,
+          maxWidth: 520,
           mx: "auto",
-          borderRadius: 2,
+          borderRadius: 1,
           boxShadow: "0 4px 32px 0 #b8b0ec33",
           background: "#fff",
           p: { xs: 2, sm: 2.5 },
@@ -405,8 +401,8 @@ const Quiz: React.FC = () => {
             width: "100%",
             display: "flex",
             flexDirection: "column",
-            px: { xs: 1, sm: 2 },
-            py: { xs: 2, sm: 2 },
+            px: { md: 2, xs: 1, sm: 2 },
+            py: { md: 2, xs: 2, sm: 2 },
           }}
         >
           <AnimatePresence mode="wait">
@@ -423,7 +419,7 @@ const Quiz: React.FC = () => {
                   variant="h5"
                   gutterBottom
                   fontWeight={700}
-                  color="#287af9"
+                  color="#002979"
                   sx={{ mb: 2.5, mt: 1, letterSpacing: 1, textAlign: "center" }}
                 >
                   <span role="img" aria-label="rocket">
@@ -451,7 +447,7 @@ const Quiz: React.FC = () => {
                         border: "2px solid #d2dcf0",
                         background:
                           "linear-gradient(135deg,#f8fafd 60%,#f4f0ff 100%)",
-                        minHeight: 80,
+                        minHeight: 120,
                         cursor: "pointer",
                         boxShadow: "0 1.5px 6px #d6d7f544",
                         display: "flex",
@@ -598,7 +594,7 @@ const Quiz: React.FC = () => {
                 <Paper
                   elevation={0}
                   sx={{
-                    borderRadius: 4,
+                    borderRadius: 3,
                     background:
                       "linear-gradient(120deg,#f6f7ff 60%,#f0eeff 100%)",
                     border: "1.6px solid #efe8fa",
