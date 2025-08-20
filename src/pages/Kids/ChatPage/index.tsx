@@ -160,21 +160,15 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
     setSelectedChatId(id);
   };
   const theme = useTheme();
-  // Helper: Colorful gradients
-  const userBubbleGradient = "linear-gradient(90deg, #FFB300 0%, #FFA000 100%)"; // slightly golden-solid
-  const tutorBubbleGradient = "linear-gradient(90deg, #42A5F5 0%, #1976D2 100%)"; // vibrant blue blend
+
+  // --- Updated lighter pastel gradients ---
+  const userBubbleGradient = "linear-gradient(90deg, #FFE0B2 0%, #FFCC80 100%)"; 
+  const tutorBubbleGradient = "linear-gradient(90deg, #BBDEFB 0%, #90CAF9 100%)"; 
 
   // Emoji picker (placeholder)
   const handleEmojiClick = (emoji: string) => {
     setInput((cur) => cur + emoji);
   };
-
-  // --- LAYOUT FIXES START HERE ---
-
-  // Make parent container (Grid) full height of viewport
-  // Ensure chat area (right) is flex column and takes full height
-  // Ensure message list box fills available height (with overflow scroll)
-  // Ensure input always pinned at bottom (not pushed down by content)
 
   return (
     <>
@@ -218,15 +212,8 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
         </DialogActions>
       </Dialog>
 
-      {/* Make root grid full viewport height minus any header (adjust as needed) */}
-      <Grid
-        container
-        sx={{
-          height: "85vh",
-          overflow: "hidden",
-        }}
-        spacing={0}
-      >
+      {/* Root Grid */}
+      <Grid container sx={{ height: "85vh", overflow: "hidden" }} spacing={0}>
         {/* Chat List Sidebar */}
         <Grid
           size={{ xs: 12, sm: 5, md: 4, lg: 3 }}
@@ -271,14 +258,14 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
                       py={1.3}
                       sx={{
                         borderRadius: "16px",
-                        bgcolor: isActive ? "#e3fcef" : "white",
-                        boxShadow: isActive ? "0 0 8px #b2dfdb40" : "none",
+                        bgcolor: isActive ? "#f0f4ff" : "white",
+                        boxShadow: isActive ? "0 0 8px #c5cae940" : "none",
                         border: isActive
-                          ? "2px solid #1976d2"
+                          ? "2px solid #90caf9"
                           : "1px solid #f0f0f0",
                         cursor: "pointer",
                         "&:hover": {
-                          bgcolor: "#c5e1fbc0",
+                          bgcolor: "#e3f2fd",
                         },
                       }}
                       onClick={() => {
@@ -327,20 +314,17 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
                 );
               })}
           </Stack>
-          {/* Add New Chat Button */}
         </Grid>
 
         {/* Chat Area */}
         <Grid
           size={{ xs: 12, sm: 7, md: 8, lg: 9 }}
-          // FULL HEIGHT + column flex
           sx={{
             display: "flex",
             flexDirection: "column",
-            minHeight: "50vh", // allow flex children to shrink
-            height: "80vh", // full viewport height
-            bgcolor: "linear-gradient(140deg, #e1f5fe 0%, #ffe082 100%)",
-            // background: "linear-gradient(140deg, #e3fcef 0%, #fff8e1 100%)",
+            minHeight: "50vh",
+            height: "80vh",
+            bgcolor: "#fafafa",
           }}
         >
           {/* Chat Header */}
@@ -359,11 +343,11 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
               mt: 4,
             }}
           >
-            <Stack direction={"row"} alignItems={"center"} gap={1} sx={{ mb: 1 }}  >
-              <Avatar alt="AI Tutor" sx={{ bgcolor: "#002979" }}>
+            <Stack direction={"row"} alignItems={"center"} gap={1} sx={{ mb: 1 }}>
+              <Avatar alt="AI Tutor" sx={{ bgcolor: "#64b5f6" }}>
                 🤖
               </Avatar>
-              <Typography variant="h6" color="#002979">
+              <Typography variant="h6" color="#1976d2">
                 Chat with Tutor
               </Typography>
             </Stack>
@@ -381,126 +365,113 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
             </Stack>
           </Stack>
 
-          {/* Chat messages - THIS FLEX CHILD GROWS AND SCROLLS */}
-          <Stack
-            sx={{
-              minHeight: "78vh",
-            }}
-          >
+          {/* Chat messages */}
+          <Stack sx={{ minHeight: "78vh" }}>
             <Box
               sx={{
-                flex: 1, // GROW!
-                // minHeight: "300px", // ALLOW FLEX SHRINK
-                overflowY: "auto", // Allow scrolling
+                flex: 1,
+                overflowY: "auto",
                 px: { xs: 1, sm: 3 },
                 py: 3,
-                // background:
-                //   "repeating-linear-gradient(90deg, #fafafc, #fbf9ed 32px)",
                 position: "relative",
               }}
             >
               <AnimatePresence initial={false}>
-                {messages.map((msg, i) => {
-                  // User message with nice bubble & avatar
-                  return (
-                    <motion.div
-                      key={`q_${msg.id}_${i}`}
-                      variants={bubbleVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit={{ opacity: 0 }}
+                {messages.map((msg, i) => (
+                  <motion.div
+                    key={`q_${msg.id}_${i}`}
+                    variants={bubbleVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit={{ opacity: 0 }}
+                  >
+                    {/* User message */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row-reverse",
+                        alignItems: "flex-end",
+                        gap: 1,
+                        mb: 1.4,
+                      }}
                     >
-                      {/* User message (right) */}
-                      <Box
+                      <Avatar
                         sx={{
-                          display: "flex",
-                          flexDirection: "row-reverse",
-                          alignItems: "flex-end",
-                          gap: 1,
-                          mb: 1.4,
+                          bgcolor: "#ffcc80",
+                          color: "#5d4037",
+                          ml: 1,
+                          width: 38,
+                          height: 38,
+                          fontWeight: 700,
+                          fontSize: 20,
                         }}
                       >
-                        <Avatar
+                        👦
+                      </Avatar>
+                      <Paper
+                        elevation={2}
+                        sx={{
+                          background: userBubbleGradient,
+                          px: 2.2,
+                          py: 1.5,
+                          borderRadius: "16px 18px 4px 20px",
+                          maxWidth: "68%",
+                          fontSize: 16,
+                        }}
+                      >
+                        <Typography fontSize={15}>{msg.question}</Typography>
+                      </Paper>
+                    </Box>
+                    {/* Bot answer */}
+                    {msg.answer && (
+                      <motion.div
+                        variants={bubbleVariants}
+                        initial="initial"
+                        animate="animate"
+                      >
+                        <Box
                           sx={{
-                            bgcolor: "#ffb200",
-                            color: "#1565c0",
-                            ml: 1,
-                            width: 38,
-                            height: 38,
-                            fontWeight: 700,
-                            fontSize: 20,
+                            display: "flex",
+                            alignItems: "flex-end",
+                            gap: 1,
+                            mb: 1,
                           }}
                         >
-                          👦
-                        </Avatar>
-                        <Paper
-                          elevation={3}
-                          sx={{
-                            background: userBubbleGradient,
-                            px: 2.2,
-                            py: 1.5,
-                            borderRadius: "16px 18px 4px 20px",
-                            mb: 0.2,
-                            maxWidth: "68%",
-                            fontSize: 16,
-                          }}
-                        >
-                          <Typography fontSize={15}>{msg.question}</Typography>
-                        </Paper>
-                      </Box>
-                      {/* Bot answer (left) */}
-                      {msg.answer && (
-                        <motion.div
-                          variants={bubbleVariants}
-                          initial="initial"
-                          animate="animate"
-                        >
-                          <Box
+                          <Avatar
                             sx={{
-                              display: "flex",
-                              alignItems: "flex-end",
-                              gap: 1,
-                              mb: 1,
+                              bgcolor: "#90caf9",
+                              color: "#0d47a1",
+                              width: 38,
+                              height: 38,
+                              fontWeight: 900,
+                              fontSize: 20,
+                              border: "2px solid #e3f2fd",
                             }}
                           >
-                            <Avatar
-                              sx={{
-                                bgcolor: "#00A7E1",
-                                color: "#33691e",
-                                mr: 1,
-                                width: 38,
-                                height: 38,
-                                fontWeight: 900,
-                                fontSize: 20,
-                                border: "2px solid #81d4fa",
-                              }}
-                            >
-                              🤖
-                            </Avatar>
-                            <Paper
-                              elevation={3}
-                              sx={{
-                                background: tutorBubbleGradient,
-                                px: 2.4,
-                                py: 1.6,
-                                borderRadius: "18px 16px 20px 4px",
-                                boxShadow: "0 1px 16px #1e90ff07",
-                                maxWidth: "72%",
-                                fontSize: 16,
-                              }}
-                            >
-                              <Typography fontSize={15}>
-                                {msg.answer}
-                              </Typography>
-                            </Paper>
-                          </Box>
-                        </motion.div>
-                      )}
-                    </motion.div>
-                  );
-                })}
+                            🤖
+                          </Avatar>
+                          <Paper
+                            elevation={2}
+                            sx={{
+                              background: tutorBubbleGradient,
+                              px: 2.4,
+                              py: 1.6,
+                              borderRadius: "18px 16px 20px 4px",
+                              maxWidth: "72%",
+                              fontSize: 16,
+                            }}
+                          >
+                            <Typography fontSize={15}>
+                              {msg.answer}
+                            </Typography>
+                          </Paper>
+                        </Box>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                ))}
 
-                {/* Typing indicator bubble */}
+                {/* Typing indicator */}
                 {isTutorTyping && (
                   <motion.div
                     key="tutor-thinking"
@@ -509,13 +480,11 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.25 }}
                   >
-                    <Box
-                      sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}
-                    >
+                    <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
                       <Avatar
                         sx={{
-                          bgcolor: "#00A7E1",
-                          color: "#1565c0",
+                          bgcolor: "#90caf9",
+                          color: "#0d47a1",
                           width: 38,
                           height: 38,
                         }}
@@ -523,7 +492,7 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
                         🤖
                       </Avatar>
                       <Paper
-                        elevation={3}
+                        elevation={2}
                         sx={{
                           background: tutorBubbleGradient,
                           px: 2.2,
@@ -532,51 +501,10 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
                           maxWidth: "62%",
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <span
-                            style={{
-                              display: "block",
-                              width: 13,
-                              height: 13,
-                              borderRadius: "50%",
-                              background: "#03a9f4",
-                              marginRight: 3,
-                              animation: "blink 1s infinite alternate",
-                            }}
-                          />
-                          <span
-                            style={{
-                              display: "block",
-                              width: 13,
-                              height: 13,
-                              borderRadius: "50%",
-                              background: "#81d4fa",
-                              marginRight: 3,
-                              animation: "blink 1s infinite alternate 0.3s",
-                            }}
-                          />
-                          <span
-                            style={{
-                              display: "block",
-                              width: 13,
-                              height: 13,
-                              borderRadius: "50%",
-                              background: "#b3e5fc",
-                              animation: "blink 1s infinite alternate 0.6s",
-                            }}
-                          />
-                          <style>{`
-                          @keyframes blink {
-                            0% { opacity: 0.4;}
-                            100% { opacity: 1;}
-                          }
-                        `}</style>
-                        </div>
                         <Typography
                           fontSize={12}
                           fontStyle="italic"
                           color="text.secondary"
-                          mt={0.5}
                         >
                           Tutor is typing…
                         </Typography>
@@ -588,7 +516,7 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
               </AnimatePresence>
             </Box>
 
-            {/* Input bar - PINNED TO BOTTOM */}
+            {/* Input bar */}
             <Box
               sx={{
                 borderTop: "1px solid #f0f0f0",
@@ -602,11 +530,9 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
               }}
             >
               <Stack direction="row" alignItems="center" spacing={2}>
-                {/* Emoji button */}
                 <IconButton onClick={() => handleEmojiClick("😊")}>
                   <EmojiEmotionsIcon color="primary" />
                 </IconButton>
-                {/* Text input */}
                 <TextField
                   fullWidth
                   variant="outlined"
@@ -634,7 +560,6 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
                     ),
                   }}
                 />
-                {/* Send button */}
                 <PmsButton
                   buttonVarient="contained"
                   name={" Send"}
