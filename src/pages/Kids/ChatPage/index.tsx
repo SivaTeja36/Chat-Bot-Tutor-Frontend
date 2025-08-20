@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {
   IconButton,
   Stack,
@@ -13,25 +12,35 @@ import {
   DialogActions,
   TextField,
   Tooltip,
+  Avatar,
+  InputAdornment,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useEffect, useRef, useState } from "react";
 import SmsOutlinedIcon from "@mui/icons-material/SmsOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
+import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
+import MicIcon from "@mui/icons-material/Mic";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { kidsAPI } from "../../../services/api";
+import { PmsButton } from "../../../components/ui/button";
 import {
   GetQuestionsHistoryResponse,
   IGetChat,
   IGetChatResponse,
 } from "../../../types/api";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import { PmsButton } from "../../../components/ui/button";
-import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
 
 interface IChatPageProps {
   setKidPage: (value: React.SetStateAction<string>) => void;
   kidId: number;
 }
+
+const bubbleVariants = {
+  initial: { opacity: 0, y: 20, scale: 0.98 },
+  animate: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3 } },
+};
 
 function ChatPage({ setKidPage, kidId }: IChatPageProps) {
   const [messages, setMessages] = useState<GetQuestionsHistoryResponse[]>([]);
@@ -44,62 +53,84 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
   const [selectedChatId, setSelectedChatId] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Typing indicator state
+  const [isTutorTyping, setIsTutorTyping] = useState(false);
+
   const handleSend = async () => {
-    const userMessage = { text: input, from: "user" as const };
-    setMessages((prev) => [...prev, userMessage]);
+    if (!input.trim()) return;
+    setMessages((prev) => [
+      ...prev,
+      { id: Date.now(), question: input, answer: "", created_at: new Date().toISOString() },
+    ]);
     setInput("");
-    setIsLoading(true); // show "thinking..." while waiting
+    setIsLoading(true);
+    setIsTutorTyping(true);
 
     try {
       const payload = { question: input };
       await kidsAPI.createQuestion(selectedChatId, payload);
 
-      // Refresh conversation from server
-      const response = await kidsAPI.getChatHistory(selectedChatId);
-      setMessages(response.data.data || []);
+      // Simulate "typing" for 1s
+      setTimeout(async () => {
+        setIsTutorTyping(false);
+        const response = await kidsAPI.getChatHistory(selectedChatId);
+        setMessages(response.data.data || []);
+        setIsLoading(false);
+      }, 1200);
     } catch (err) {
-      console.error("Error sending message:", err);
-    } finally {
+      setIsTutorTyping(false);
       setIsLoading(false);
+      console.error("Error sending message:", err);
     }
   };
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Ensure always scroll to last message
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isLoading, isTutorTyping]);
+
+  // Fetch chats
+  const handleGetChat = async () => {
+    try {
+      const response = await kidsAPI.getChat(kidId);
+      setChatData(response.data.data);
+    } catch (err) {
+      console.error("Error fetching chat data:", err);
+    }
+  };
+
+  // Fetch chat histories on chat switch
+  useEffect(() => {
+    handleGetChat();
+  }, []);
 
   useEffect(() => {
     const getAllChatConversation = async () => {
       if (!selectedChatId) return;
-
       try {
         const response = await kidsAPI.getChatHistory(selectedChatId);
-        // assuming API returns something like { data: { data: [{ text, from }, ...] } }
         setMessages(response.data.data || []);
       } catch (error) {
         console.error("Error fetching chat history:", error);
         setMessages([]);
       }
     };
-
     getAllChatConversation();
   }, [selectedChatId]);
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, isLoading]);
-
+  // Chat CRUD
   const handleCreateChat = async () => {
     try {
-      const payload = {
-        title: chatName,
-      };
-
+      const payload = { title: chatName };
       if (isEditMode && editingChatId !== null) {
         await kidsAPI.updateChat(kidId, editingChatId, payload);
       } else {
         await kidsAPI.createChat(kidId, payload);
       }
-
       setOpenDialog(false);
       setChatName("");
       setEditingChatId(null);
@@ -110,38 +141,12 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
     }
   };
 
-  const handleGetChat = async () => {
-    try {
-      const response = await kidsAPI.getChat(kidId);
-      const chats = response.data.data; // This is your array of chats
-
-      // Log all titles
-      chats?.forEach((chat) => console.log(chat.title));
-
-      // Or if you want an array of titles
-      const titles = chats?.map((chat: IGetChat) => chat.title);
-      console.log(titles);
-
-      // Set chatData as usual
-      setChatData(chats);
-    } catch (err) {
-      console.error("Error fetching chat data:", err);
-    }
-  };
-
-  useEffect(() => {
-    handleGetChat();
-  }, []);
-
-  console.log(chatData, "cjaa");
-
   const handleDeleteChat = async (chatId: number) => {
     const confirmed = window.confirm("Do you want to delete this chat?");
     if (!confirmed) return;
-
     try {
       await kidsAPI.deleteKChat(kidId, chatId);
-      handleGetChat(); // Refresh chat list
+      handleGetChat();
     } catch (err) {
       console.error("Error deleting chat:", err);
     }
@@ -151,23 +156,37 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
     setSelectedChatId(id);
   };
 
+  // Helper: Colorful gradients
+  const userBubbleGradient =
+    "linear-gradient(120deg, #d1c4e9 0%, #b2dfdb 100%)";
+  const tutorBubbleGradient =
+    "linear-gradient(125deg, #fffde7 0%, #81d4fa 100%)";
+
+  // Emoji picker (placeholder)
+  const handleEmojiClick = (emoji: string) => {
+    setInput((cur) => cur + emoji);
+  };
+
+  // --- LAYOUT FIXES START HERE ---
+
+  // Make parent container (Grid) full height of viewport
+  // Ensure chat area (right) is flex column and takes full height
+  // Ensure message list box fills available height (with overflow scroll)
+  // Ensure input always pinned at bottom (not pushed down by content)
+
   return (
     <>
-      <Dialog
-        open={openDialog}
-        onClose={() => {
-          setOpenDialog(false);
-        }}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Add New chat name</DialogTitle>
+      {/* Add/Edit Chat Dialog */}
+      <Dialog open={openDialog}
+        onClose={() => { setOpenDialog(false); }}
+        maxWidth="sm" fullWidth>
+        <DialogTitle>{isEditMode ? "Edit Chat Name" : "Add New Chat"}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid size={12}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Full Name"
+                label="Chat Name"
                 value={chatName}
                 onChange={(e) => setChatName(e.target.value)}
                 variant="outlined"
@@ -186,19 +205,30 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Grid container sx={{ height: "86vh" }} spacing={2}>
-        {/* Sidebar */}
+
+      {/* Make root grid full viewport height minus any header (adjust as needed) */}
+      <Grid container sx={{
+        height: "calc(100vh - 24px)",   // adjust margin if you have headers
+        minHeight: "500px",
+        overflow: "hidden"
+      }} spacing={0}>
+
+        {/* Chat List Sidebar */}
         <Grid
-          size={{ lg: 3, md: 5, sm: 5, xs: 12 }}
+          item xs={12} sm={5} md={4} lg={3}
           sx={{
-            // bgcolor: "grey.100",
             borderRight: "1px solid",
             borderColor: "divider",
+            bgcolor: "#f5f9fd",
             display: "flex",
             flexDirection: "column",
             p: 2,
+            height: "100%", // full height
+            minWidth: 220,
+            maxWidth: 330,
           }}
         >
+          {/* Sidebar Header */}
           <Stack direction="row" alignItems="center" spacing={1} mb={2}>
             <IconButton onClick={() => setKidPage("kidPage")}>
               <ArrowBackIcon />
@@ -207,234 +237,333 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
               Chat History
             </Typography>
           </Stack>
-
-          <Stack spacing={1} flexGrow={1}>
+          {/* Chat Titles */}
+          <Stack spacing={2} flexGrow={1} sx={{ overflowY: "auto" }}>
             {chatData &&
               chatData.length > 0 &&
-              chatData.map((data) => {
+              chatData.map((data, idx) => {
                 const isActive = selectedChatId === data.id;
-
                 return (
-                  <Stack
+                  <motion.div
                     key={data.id}
-                    direction={"row"}
-                    alignItems={"center"}
-                    justifyContent={"space-between"}
-                    gap={1}
-                    px={2}
-                    py={1}
-                    sx={{
-                      cursor: "pointer",
-                      borderRadius: "8px",
-                      bgcolor: isActive ? "#2196f314" : "transparent",
-                      "&:hover": {
-                        bgcolor: isActive ? "transparent" : "#efefef",
-                      },
-                    }}
-                    onClick={() => {
-                      setMessages([]);
-                      handleStoreId(data.id);
-                    }}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.08 }}
                   >
-                    {/* Left side with icon + title */}
-                    <Stack direction={"row"} alignItems={"center"} gap={1}>
-                      <SmsOutlinedIcon fontSize="small" />
-                      <Tooltip
-                        title={data.title}
-                        placement="right"
-                        disableHoverListener={data.title.length <= 10}
-                      >
-                        <Typography noWrap>
-                          {data.title.length > 10
-                            ? `${data.title.substring(0, 10)}...`
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      px={2} py={1.3}
+                      sx={{
+                        borderRadius: "16px",
+                        bgcolor: isActive ? "#e3fcef" : "white",
+                        boxShadow: isActive ? "0 0 8px #b2dfdb40" : "none",
+                        border: isActive ? "2px solid #1976d2" : "1px solid #f0f0f0",
+                        cursor: "pointer",
+                        "&:hover": {
+                          bgcolor: "#c5e1fbc0",
+                        }
+                      }}
+                      onClick={() => {
+                        setMessages([]);
+                        handleStoreId(data.id);
+                      }}
+                    >
+                      <Stack direction="row" alignItems="center" gap={1}>
+                        <SmsOutlinedIcon color="primary" />
+                        <Typography noWrap fontSize={15}>
+                          {data.title.length > 16
+                            ? `${data.title.substring(0, 16)}...`
                             : data.title}
                         </Typography>
-                      </Tooltip>
+                      </Stack>
+                      <Stack direction="row">
+                        <Tooltip title="Edit">
+                          <IconButton
+                            size="small"
+                            sx={{ mr: 0.5 }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setChatName(data.title);
+                              setEditingChatId(data.id);
+                              setIsEditMode(true);
+                              setOpenDialog(true);
+                            }}>
+                            <EditOutlinedIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton
+                            size="small"
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleDeleteChat(data.id);
+                            }}>
+                            <DeleteOutlineOutlinedIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
                     </Stack>
-
-                    {/* Right side with edit + delete */}
-                    <Stack direction={"row"} alignItems={"center"}>
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setChatName(data.title);
-                          setEditingChatId(data.id);
-                          setIsEditMode(true);
-                          setOpenDialog(true);
-                        }}
-                      >
-                        <EditOutlinedIcon
-                          fontSize="small"
-                          sx={{ color: "#202124" }}
-                        />
-                      </IconButton>
-
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteChat(data.id);
-                        }}
-                      >
-                        <DeleteOutlineOutlinedIcon
-                          fontSize="small"
-                          sx={{ color: "#202124" }}
-                        />
-                      </IconButton>
-                    </Stack>
-                  </Stack>
+                  </motion.div>
                 );
               })}
           </Stack>
+          {/* Add New Chat Button */}
+          <Button
+            fullWidth
+            variant="contained"
+            startIcon={<ForumOutlinedIcon />}
+            sx={{ mt: 3, borderRadius: 3, fontWeight: 700, boxShadow: 2 }}
+            onClick={() => { setOpenDialog(true); setChatName(""); setMessages([]); }}>
+            Add New Chat
+          </Button>
         </Grid>
 
-        {/* Main Chat Area */}
-        <Grid
-          size={{ lg: 9, md: 7, sm: 7, xs: 12 }}
+        {/* Chat Area */}
+        <Grid item xs={12} sm={7} md={8} lg={9}
+          // FULL HEIGHT + column flex
           sx={{
             display: "flex",
             flexDirection: "column",
-            bgcolor: "background.default",
-          }}
-        >
-          {/* Header */}
-          <Stack
-            direction={"row"}
-            justifyContent={"space-between"}
-            alignItems={"center"}
+            minHeight: "0",       // allow flex children to shrink
+            height: "100vh",      // full viewport height
+            bgcolor: "linear-gradient(140deg, #e1f5fe 0%, #ffe082 100%)",
+            background: "linear-gradient(140deg, #e3fcef 0%, #fff8e1 100%)"
+          }} >
+
+          {/* Chat Header */}
+          <Stack direction="row" justifyContent="space-between" alignItems="center"
             sx={{
               borderBottom: "1px solid",
               borderColor: "divider",
-              p: 2,
-              bgcolor: "background.paper",
-            }}
-          >
-            <Typography variant="h6" sx={{ color: "#002979" }}>
-              Chat with Tutor
-            </Typography>
-            <PmsButton
-              buttonVarient="contained"
-              name={"Add New Chat"}
-              buttonClick={() => {
-                setOpenDialog(true);
-                setChatName("");
-                setMessages([]);
-              }}
-            />
+              p: 2, pb: 1.5,
+              bgcolor: "#f7f8fa",
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              minHeight: 72
+            }}>
+            <Stack direction="row" alignItems="center" gap={1}>
+              <Avatar alt="AI Tutor" sx={{ bgcolor: "#1976d2" }}>
+                🤖
+              </Avatar>
+              <Typography variant="h6" color="primary">
+                Chat with Tutor
+              </Typography>
+            </Stack>
           </Stack>
 
-          {/* Chat messages area (fixed height + scrollable) */}
+          {/* Chat messages - THIS FLEX CHILD GROWS AND SCROLLS */}
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              padding: 2,
-              height: "65vh",
-              overflowY: "auto",
-            }}
-          >
-            {messages.map((msg) => (
-              <Box
-                key={msg.id}
-                sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-              >
-                {/* User question (left) */}
-                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  <Paper
-                    sx={{
-                      padding: "8px 12px",
-                      borderRadius: "8px",
-                      maxWidth: "70%",
-                      bgcolor: "#e0f7fa",
-                      boxShadow: "none",
-                    }}
+              flex: 1,                                       // GROW!
+              minHeight: 0,                                  // ALLOW FLEX SHRINK
+              overflowY: "auto",                             // Allow scrolling
+              px: { xs: 1, sm: 3 },
+              py: 3,
+              background: "repeating-linear-gradient(90deg, #fafafc, #fbf9ed 32px)",
+              position: "relative",
+            }}>
+            <AnimatePresence initial={false}>
+              {messages.map((msg, i) => {
+                // User message with nice bubble & avatar
+                return (
+                  <motion.div
+                    key={`q_${msg.id}_${i}`}
+                    variants={bubbleVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit={{ opacity: 0 }}
                   >
-                    <Typography fontSize={"14px"}>{msg.question}</Typography>
-                  </Paper>
-                </Box>
-
-                {/* Bot answer (right) */}
-                {msg.answer && (
-                  <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-                    <Paper
+                    {/* User message (right) */}
+                    <Box
                       sx={{
-                        padding: "8px 12px",
-                        borderRadius: "8px",
-                        maxWidth: "40%",
-                        bgcolor: "#f1f8e9",
-                        boxShadow: "none",
+                        display: "flex",
+                        flexDirection: "row-reverse",
+                        alignItems: "flex-end",
+                        gap: 1,
+                        mb: 1.4,
+                      }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: "#a5d6a7",
+                          color: "#1565c0",
+                          ml: 1,
+                          width: 38, height: 38, fontWeight: 700,
+                          fontSize: 20,
+                        }}>
+                        👦
+                      </Avatar>
+                      <Paper
+                        elevation={3}
+                        sx={{
+                          background: userBubbleGradient,
+                          px: 2.2, py: 1.5, borderRadius: "16px 18px 4px 20px",
+                          mb: 0.2, maxWidth: "68%", fontSize: 16,
+                        }}>
+                        <Typography fontSize={15}>{msg.question}</Typography>
+                      </Paper>
+                    </Box>
+                    {/* Bot answer (left) */}
+                    {msg.answer && (
+                      <motion.div variants={bubbleVariants} initial="initial" animate="animate">
+                        <Box sx={{
+                          display: "flex",
+                          alignItems: "flex-end",
+                          gap: 1, mb: 1,
+                        }}>
+                          <Avatar
+                            sx={{
+                              bgcolor: "#ffd54f",
+                              color: "#33691e",
+                              mr: 1,
+                              width: 38, height: 38,
+                              fontWeight: 900, fontSize: 20,
+                              border: "2px solid #81d4fa",
+                            }}
+                          >🤖</Avatar>
+                          <Paper
+                            elevation={3}
+                            sx={{
+                              background: tutorBubbleGradient,
+                              px: 2.4, py: 1.6, borderRadius: "18px 16px 20px 4px",
+                              boxShadow: "0 1px 16px #1e90ff07",
+                              maxWidth: "72%", fontSize: 16,
+                            }}
+                          >
+                            <Typography fontSize={15}>{msg.answer}</Typography>
+                          </Paper>
+                        </Box>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                );
+              })}
+
+              {/* Typing indicator bubble */}
+              {isTutorTyping && (
+                <motion.div
+                  key="tutor-thinking"
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
+                    <Avatar
+                      sx={{
+                        bgcolor: "#ffd54f",
+                        color: "#1565c0",
+                        width: 38,
+                        height: 38,
                       }}
-                    >
-                      <Typography fontSize={"14px"}>{msg.answer}</Typography>
+                    >🤖</Avatar>
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        background: tutorBubbleGradient,
+                        px: 2.2, py: 1.5, borderRadius: "18px 18px 20px 4px",
+                        maxWidth: "62%",
+                      }}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <span style={{
+                          display: "block",
+                          width: 13, height: 13, borderRadius: "50%",
+                          background: "#03a9f4", marginRight: 3, animation: "blink 1s infinite alternate"
+                        }} />
+                        <span style={{
+                          display: "block",
+                          width: 13, height: 13, borderRadius: "50%",
+                          background: "#81d4fa", marginRight: 3, animation: "blink 1s infinite alternate 0.3s"
+                        }} />
+                        <span style={{
+                          display: "block",
+                          width: 13, height: 13, borderRadius: "50%",
+                          background: "#b3e5fc", animation: "blink 1s infinite alternate 0.6s"
+                        }} />
+                        <style>{`
+                          @keyframes blink {
+                            0% { opacity: 0.4;}
+                            100% { opacity: 1;}
+                          }
+                        `}</style>
+                      </div>
+                      <Typography
+                        fontSize={12}
+                        fontStyle="italic"
+                        color="text.secondary"
+                        mt={0.5}
+                      >Tutor is typing…</Typography>
                     </Paper>
                   </Box>
-                )}
-              </Box>
-            ))}
-
-            {isLoading && (
-              <Box
-                sx={{ display: "flex", justifyContent: "flex-start", mt: 1 }}
-              >
-                <Paper
-                  sx={{
-                    padding: "8px 12px",
-                    borderRadius: "8px",
-                    bgcolor: "#f1f8e9",
-                    boxShadow: "none",
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    fontStyle="italic"
-                    color="text.secondary"
-                  >
-                    Tutor is thinking...
-                  </Typography>
-                </Paper>
-              </Box>
-            )}
-            <div ref={messagesEndRef} />
+                </motion.div>
+              )}
+              <div ref={messagesEndRef} />
+            </AnimatePresence>
           </Box>
 
-          <Grid container>
-            <Grid
-              size={{ md: 12 }}
-              sx={{
-                borderTop: "1px solid",
-                borderColor: "divider",
-                p: 2,
-                bgcolor: "background.paper",
-                position: "sticky",
-                bottom: "1%",
-              }}
-            >
-              <Stack direction="row" spacing={1} width={"100%"}>
-                <input
-                  type="text"
-                  placeholder="Type your message..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  style={{
-                    flex: 1,
-                    width: "100%",
-                    padding: "10px 12px",
-                    borderRadius: "4px",
-                    border: "1px solid #ccc",
-                    fontSize: "12px",
-                  }}
-                />
-
-                <PmsButton
-                  buttonVarient="contained"
-                  name={"Send"}
-                  buttonClick={handleSend}
-                  isDisable={input.length === 0}
-                />
-              </Stack>
-            </Grid>
-          </Grid>
+          {/* Input bar - PINNED TO BOTTOM */}
+          <Box
+            sx={{
+              borderTop: "1px solid #f0f0f0",
+              p: 2,
+              bgcolor: "#f7f8fa",
+              borderBottomLeftRadius: 16,
+              borderBottomRightRadius: 16,
+              position: 'sticky',
+              bottom: 0,
+              zIndex: 5,
+            }}>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              {/* Emoji button */}
+              <IconButton onClick={() => handleEmojiClick("😊")}>
+                <EmojiEmotionsIcon color="primary" />
+              </IconButton>
+              {/* Text input */}
+              <TextField
+                fullWidth variant="outlined"
+                size="small"
+                placeholder="Type your message…"
+                value={input}
+                autoFocus
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSend()}
+                sx={{
+                  background: "#fff",
+                  borderRadius: "20px",
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '20px',
+                  },
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton>
+                        <MicIcon sx={{ color: "#81d4fa" }} />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              {/* Send button */}
+              <Button
+                onClick={handleSend}
+                color="primary"
+                variant="contained"
+                sx={{
+                  px: 3,
+                  borderRadius: "20px",
+                  fontWeight: 700,
+                  height: 40,
+                  bgcolor: "#1976d2",
+                  boxShadow: 2,
+                }}
+                disabled={input.length === 0 || isLoading}
+              >
+                Send
+              </Button>
+            </Stack>
+          </Box>
         </Grid>
       </Grid>
     </>
