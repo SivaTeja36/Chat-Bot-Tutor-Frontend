@@ -12,11 +12,15 @@ interface IButtonProps {
   buttonBgColor?: string;
   style?: CSSProperties;
   dataTestid?: string;
+  type?: "button" | "reset" | "submit" | undefined;
+  size?: "small" | "medium" | "large";
 }
 
 export const PmsButton = (props: IButtonProps) => {
   return (
     <Button
+      size={props.size}
+      type={props.type}
       variant={props.buttonVarient}
       endIcon={props.endIcon}
       startIcon={props.startIcon}
@@ -30,10 +34,10 @@ export const PmsButton = (props: IButtonProps) => {
         borderRadius: "4px",
         lineHeight: 1.5,
         fontFamily: "Poppins",
-        textAlign: "left",
+        textAlign: "center",
         px: 3.5,
         py: 1.25,
-        justifyContent: "left",
+        justifyContent: "center",
         backgroundColor: props.isDisable
           ? "#999"
           : props.buttonBgColor ??

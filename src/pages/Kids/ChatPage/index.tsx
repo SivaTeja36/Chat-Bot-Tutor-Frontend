@@ -308,7 +308,9 @@ function ChatPage({ setKidPage, kidId }: IChatPageProps) {
               bgcolor: "background.paper",
             }}
           >
-            <Typography variant="h6">Chat with Tutor</Typography>
+            <Typography variant="h6" sx={{ color: "#002979" }}>
+              Chat with Tutor
+            </Typography>
             <PmsButton
               buttonVarient="contained"
               name={"Add New Chat"}

@@ -225,10 +225,11 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </IconButton>
 
           <Typography
-            variant="h6"
+            fontSize={"18px"}
+            fontWeight={500}
             noWrap
             component="div"
-            sx={{ flexGrow: 1, color: "primary.main" }}
+            sx={{ flexGrow: 1, color: "#002979" }}
           >
             {menuItems.find((item) => item.path === location.pathname)?.text ||
               "BrightSpark Tutor"}

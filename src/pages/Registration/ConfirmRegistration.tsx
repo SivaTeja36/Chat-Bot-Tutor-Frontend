@@ -1,28 +1,36 @@
-import React, { useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import {
   TextField,
   Typography,
   Alert,
   CircularProgress,
   Box,
-} from '@mui/material';
-import { motion } from 'framer-motion';
+  Stack,
+} from "@mui/material";
+import { motion } from "framer-motion";
 
-import AnimatedButton from '../../components/AnimatedButton/AnimatedButton';
-import { authAPI } from '../../services/api';
-import { FullScreenRoot, LeftSide, RightSide, FormPaper, textFieldSx, buttonSx } from '../../components/AuthStyles/AuthStyles';
-import useNoScroll from '../../hooks/useNoScroll';
-import { styled } from '@mui/material/styles';
+import { authAPI } from "../../services/api";
+import {
+  FullScreenRoot,
+  LeftSide,
+  RightSide,
+  FormPaper,
+  textFieldSx,
+} from "../../components/AuthStyles/AuthStyles";
+import useNoScroll from "../../hooks/useNoScroll";
+import { styled } from "@mui/material/styles";
+import { PmsButton } from "../../components/ui/button";
 
 // If you want to use custom styles:
 const BackLink = styled(Link)({
-  textDecoration: 'underline',
-  color: '#1976d2',
+  textDecoration: "underline",
+  color: "#1976d2",
   fontWeight: 500,
-  cursor: 'pointer',
-  '&:hover': {
-    color: '#115293',
+  cursor: "pointer",
+  "&:hover": {
+    color: "#115293",
   },
 });
 
@@ -32,39 +40,40 @@ const ConfirmRegistration: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const emailParam = searchParams.get('email') || '';
-  const tokenParam = searchParams.get('token') || '';
+  const emailParam = searchParams.get("email") || "";
+  const tokenParam = searchParams.get("token") || "";
 
   const [formData, setFormData] = useState({
-    password: '',
-    confirmPassword: '',
+    password: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }));
-  };
+  const handleChange =
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: e.target.value,
+      }));
+    };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError("Password must be at least 8 characters long");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
     try {
       await authAPI.createUser({
         password: formData.password,
@@ -72,10 +81,13 @@ const ConfirmRegistration: React.FC = () => {
       });
       setSuccess(true);
       setTimeout(() => {
-        navigate('/login', { state: { email: emailParam } });
+        navigate("/login", { state: { email: emailParam } });
       }, 3000);
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to confirm registration. Please try again.');
+      setError(
+        error.response?.data?.message ||
+          "Failed to confirm registration. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -90,9 +102,9 @@ const ConfirmRegistration: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
             margin: 0,
           }}
         >
@@ -105,17 +117,18 @@ const ConfirmRegistration: React.FC = () => {
                   align="center"
                   color="primary"
                   fontWeight="bold"
-                  sx={{ mb: 2, fontSize: '2rem' }}
+                  sx={{ mb: 2, fontSize: "2rem" }}
                 >
                   Registration Confirmed! 🎉
                 </Typography>
                 <Typography
                   variant="body1"
                   align="center"
-                  color="text.secondary"
-                  sx={{ mb: 3 }}
+                  color="#002979"
+                  sx={{ mb: 0.5 }}
                 >
-                  Your account is now ready. You can log in with your new password.
+                  Your account is now ready. You can log in with your new
+                  password.
                 </Typography>
                 <Typography
                   variant="body2"
@@ -131,9 +144,9 @@ const ConfirmRegistration: React.FC = () => {
                   variant="h4"
                   component="h1"
                   align="center"
-                  color="primary"
+                  color="#002979"
                   fontWeight="bold"
-                  sx={{ mb: 2, fontSize: '2rem' }}
+                  sx={{ mb: 0.5, fontSize: "2rem" }}
                 >
                   Complete Your Registration
                 </Typography>
@@ -145,7 +158,10 @@ const ConfirmRegistration: React.FC = () => {
                 >
                   Set your password to activate your account.
                 </Typography>
-                <form onSubmit={handleSubmit} style={{ width: '100%', margin: 0 }}>
+                <form
+                  onSubmit={handleSubmit}
+                  style={{ width: "100%", margin: 0 }}
+                >
                   <TextField
                     fullWidth
                     label="Email Address"
@@ -161,7 +177,7 @@ const ConfirmRegistration: React.FC = () => {
                     label="New Password"
                     type="password"
                     value={formData.password}
-                    onChange={handleChange('password')}
+                    onChange={handleChange("password")}
                     margin="normal"
                     required
                     variant="outlined"
@@ -172,37 +188,37 @@ const ConfirmRegistration: React.FC = () => {
                     label="Confirm Password"
                     type="password"
                     value={formData.confirmPassword}
-                    onChange={handleChange('confirmPassword')}
+                    onChange={handleChange("confirmPassword")}
                     margin="normal"
                     required
                     variant="outlined"
                     sx={textFieldSx}
                   />
                   {error && (
-                    <Alert severity="error" sx={{ mt: 1, borderRadius: '8px' }}>
+                    <Alert severity="error" sx={{ mt: 1, borderRadius: "8px" }}>
                       {error}
                     </Alert>
                   )}
                   <Box mt={3}>
-                    <AnimatedButton
-                      type="submit"
-                      fullWidth
-                      variant="contained"
-                      disabled={loading || !formData.password || !formData.confirmPassword}
-                      animationType="bounce"
-                      sx={buttonSx}
-                    >
-                      {loading ? (
-                        <CircularProgress size={24} color="inherit" />
-                      ) : (
-                        'Set Password'
-                      )}
-                    </AnimatedButton>
+                    <Stack>
+                      <PmsButton
+                        buttonVarient="contained"
+                        type="submit"
+                        name={
+                          loading ? (
+                            <CircularProgress size={24} color="inherit" />
+                          ) : (
+                            "Set Password"
+                          )
+                        }
+                        buttonClick={() => {}}
+                      />
+                    </Stack>
                   </Box>
                 </form>
                 <Box mt={3} textAlign="center">
                   <Typography variant="body2" color="text.secondary">
-                    <BackLink to="/login">
+                    <BackLink to="/login" sx={{ color: "#002979" }}>
                       Back to Login
                     </BackLink>
                   </Typography>

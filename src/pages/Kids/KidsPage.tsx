@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -47,7 +48,9 @@ const Kids = () => {
     standard: "",
   });
   const [question, setQuestion] = useState("");
-  const [chatHistory, setChatHistory] = useState<{ question: string; answer: string }[]>([]);
+  const [chatHistory, setChatHistory] = useState<
+    { question: string; answer: string }[]
+  >([]);
   const [askingQuestion, setAskingQuestion] = useState(false);
   const [kidPage, setKidPage] = useState("kidPage");
   const [handedOverKidId, setHandedOverKidId] = useState<number | null>(() => {
@@ -123,7 +126,9 @@ const Kids = () => {
     try {
       await kidsAPI.deleteKid(kidId);
       setKids(kids.filter((kid) => kid.id !== kidId));
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleHandover = (kidId: number) => {
@@ -135,7 +140,7 @@ const Kids = () => {
     handedOverKidId !== null && handedOverKidId !== kidId;
 
   // Card styles helper
-  const getCardSX = (protectedCard, activeCard) => ({
+  const getCardSX = (protectedCard: any, activeCard: any) => ({
     boxShadow: "0.75",
     border: activeCard ? "2px solid #50b750" : "1px solid #efefef",
     borderRadius: "14px",
@@ -180,7 +185,10 @@ const Kids = () => {
               }}
             >
               <SecurityIcon sx={{ color: "#b71c1c", fontSize: 22, mr: 0.7 }} />
-              <Typography variant="body2" sx={{ color: "#c62828", fontWeight: 500 }}>
+              <Typography
+                variant="body2"
+                sx={{ color: "#c62828", fontWeight: 500 }}
+              >
                 Protected
               </Typography>
             </Box>
@@ -242,32 +250,53 @@ const Kids = () => {
               </Box>
             </Box>
             <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={4}>
+              <Grid size={{ md: 4, sm: 4 }}>
                 <Box className="text-center">
-                  <Typography variant="h6" sx={{ color: "#002979" }} className="font-bold text-primary">
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "#002979" }}
+                    className="font-bold text-primary"
+                  >
                     {0}
                   </Typography>
-                  <Typography variant="caption" className="text-muted-foreground">
+                  <Typography
+                    variant="caption"
+                    className="text-muted-foreground"
+                  >
                     Quizzes
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={4}>
+              <Grid size={{ md: 4, sm: 4 }}>
                 <Box className="text-center">
-                  <Typography variant="h6" sx={{ color: "#002979" }} className="font-bold text-success">
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "#002979" }}
+                    className="font-bold text-success"
+                  >
                     {0}%
                   </Typography>
-                  <Typography variant="caption" className="text-muted-foreground">
+                  <Typography
+                    variant="caption"
+                    className="text-muted-foreground"
+                  >
                     Avg Score
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={4}>
+              <Grid size={{ md: 4, sm: 4 }}>
                 <Box className="text-center">
-                  <Typography variant="h6" sx={{ color: "#002979" }} className="font-bold text-warning">
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "#002979" }}
+                    className="font-bold text-warning"
+                  >
                     {0}h
                   </Typography>
-                  <Typography variant="caption" className="text-muted-foreground">
+                  <Typography
+                    variant="caption"
+                    className="text-muted-foreground"
+                  >
                     Study Time
                   </Typography>
                 </Box>
@@ -275,8 +304,12 @@ const Kids = () => {
             </Grid>
             <Box className="mb-3">
               <Box className="flex justify-between items-center mb-1">
-                <Typography variant="body2" className="font-medium">Learning Progress</Typography>
-                <Typography variant="body2" className="text-primary font-bold">{0}%</Typography>
+                <Typography variant="body2" className="font-medium">
+                  Learning Progress
+                </Typography>
+                <Typography variant="body2" className="text-primary font-bold">
+                  {0}%
+                </Typography>
               </Box>
               <LinearProgress
                 variant="determinate"
@@ -311,7 +344,7 @@ const Kids = () => {
                 buttonVarient="outlined"
                 name={"Chat"}
                 buttonClick={() => {
-                  if (!(protectedCard)) {
+                  if (!protectedCard) {
                     setSelectedKid(kid);
                     setKidPage("chatPage");
                   }
@@ -323,7 +356,7 @@ const Kids = () => {
                 buttonVarient="outlined"
                 name={"Quiz"}
                 buttonClick={() => {
-                  if (!(protectedCard)) {
+                  if (!protectedCard) {
                     navigate("/kids/quiz");
                   }
                 }}
@@ -351,7 +384,11 @@ const Kids = () => {
                 <Typography fontSize={"24px"} fontWeight={600}>
                   Your Kids 👨‍👩‍👧‍👦
                 </Typography>
-                <Typography fontSize={"14px"} fontWeight={400} color="textDisabled">
+                <Typography
+                  fontSize={"14px"}
+                  fontWeight={400}
+                  color="textDisabled"
+                >
                   Manage and track your children's learning progress
                 </Typography>
               </Box>
