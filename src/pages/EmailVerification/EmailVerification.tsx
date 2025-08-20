@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { motion } from "framer-motion";
 
-import AnimatedButton from "../../components/AnimatedButton/AnimatedButton";
+import { PmsButton } from "../../components/ui/button";
 import { authAPI } from "../../services/api";
 import {
   FullScreenRoot,
@@ -19,7 +19,6 @@ import {
   RightSide,
   FormPaper,
   textFieldSx,
-  buttonSx,
 } from "../../components/AuthStyles/AuthStyles";
 
 const EmailVerification: React.FC = () => {
@@ -68,9 +67,9 @@ const EmailVerification: React.FC = () => {
               variant="h4"
               component="h1"
               align="center"
-              color="primary"
+              color="#002979"
               fontWeight="bold"
-              sx={{ mb: 2, fontSize: "2rem" }}
+              sx={{ mb: 0.5, fontSize: "2rem" }}
             >
               Verify Email
             </Typography>
@@ -99,21 +98,19 @@ const EmailVerification: React.FC = () => {
                   {error}
                 </Alert>
               )}
-              <Box mt={3}>
-                <AnimatedButton
+              <Box mt={3} sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
+                <PmsButton
                   type="submit"
-                  fullWidth
-                  variant="contained"
-                  disabled={loading || !email}
-                  animationType="bounce"
-                  sx={buttonSx}
-                >
-                  {loading ? (
-                    <CircularProgress size={24} color="inherit" />
-                  ) : (
-                    "Continue"
-                  )}
-                </AnimatedButton>
+                  buttonVarient="contained"
+                  name={
+                    loading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      "Continue"
+                    )
+                  }
+                  buttonClick={() => {}}
+                />
               </Box>
             </form>
           </FormPaper>
