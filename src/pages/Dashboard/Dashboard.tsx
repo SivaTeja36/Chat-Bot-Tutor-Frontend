@@ -179,14 +179,14 @@ const Dashboard = () => {
       title: "Study Hours",
       value: `${totalStudyHours}h`,
       icon: <Timer />,
-      color: "#90caf9",
+      color: "#8CD867 ",
       change: "",
     },
     {
       title: "Achievements",
       value: totalAchievements,
       icon: <EmojiEvents />,
-      color: "#ffd54f",
+      color: "#FABC3C",
       change: "",
     },
   ];
