@@ -387,7 +387,7 @@ const Quiz: React.FC = () => {
           width: "100%",
           maxWidth: 430,
           mx: "auto",
-          borderRadius: 5,
+          borderRadius: 2,
           boxShadow: "0 4px 32px 0 #b8b0ec33",
           background: "#fff",
           p: { xs: 2, sm: 2.5 },
