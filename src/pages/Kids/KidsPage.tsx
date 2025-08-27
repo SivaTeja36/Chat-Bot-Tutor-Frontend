@@ -23,16 +23,11 @@ import {
   Add,
   Edit,
   Delete,
-  Chat,
-  Quiz,
   Security as SecurityIcon,
 } from "@mui/icons-material";
 import { kidsAPI } from "../../services/api";
 import { GetKidResponse, KidRequest } from "../../types/api";
-import ChatPage from "./ChatPage";
 import { PmsButton } from "../../components/ui/button";
-
-const HANDOVER_KEY = "handedOverKidId_2025";
 
 const Kids = () => {
   const navigate = useNavigate();
@@ -47,27 +42,6 @@ const Kids = () => {
     school: "",
     standard: "",
   });
-  // const [question, setQuestion] = useState("");
-  // const [chatHistory, setChatHistory] = useState<
-  //   { question: string; answer: string }[]
-  // >([]);
-  // const [askingQuestion, setAskingQuestion] = useState(false);
-  const [kidPage, setKidPage] = useState("kidPage");
-  const [handedOverKidId, setHandedOverKidId] = useState<number | null>(() => {
-    const id = localStorage.getItem(HANDOVER_KEY);
-    return id ? parseInt(id) : null;
-  });
-
-  // On handoverKidId change, keep in localStorage
-  useEffect(() => {
-    if (handedOverKidId !== null) {
-      localStorage.setItem(HANDOVER_KEY, handedOverKidId.toString());
-    } else {
-      localStorage.removeItem(HANDOVER_KEY);
-    }
-  }, [handedOverKidId]);
-
-  const isParentMode = handedOverKidId === null;
 
   const fetchKids = async () => {
     try {
@@ -90,7 +64,6 @@ const Kids = () => {
   };
 
   const handleEditKid = (kid: GetKidResponse) => {
-    if (!isParentMode) return;
     setSelectedKid(kid);
     setNewKid({
       name: kid.name,
@@ -124,7 +97,6 @@ const Kids = () => {
   };
 
   const handleDeleteKid = async (kidId: number) => {
-    if (!isParentMode) return;
     try {
       await kidsAPI.deleteKid(kidId);
       setKids(kids.filter((kid) => kid.id !== kidId));
@@ -134,92 +106,54 @@ const Kids = () => {
   };
 
   const handleHandover = (kidId: number) => {
-    if (handedOverKidId !== null) return;
-    setHandedOverKidId(kidId);
+    navigate(`/handover/${kidId}/chat`);
   };
 
-  const isKidProtected = (kidId: number) =>
-    handedOverKidId !== null && handedOverKidId !== kidId;
-
   // Card styles helper
-  const getCardSX = (protectedCard: any, activeCard: any) => ({
+  const getCardSX = () => ({
     boxShadow: "0.75",
-    border: activeCard ? "2px solid #50b750" : "1px solid #efefef",
+    border: "1px solid #efefef",
     borderRadius: "14px",
-    background: protectedCard
-      ? "#fcfcfc"
-      : activeCard
-      ? "#eafeec"
-      : "background.paper",
-    opacity: protectedCard ? 1 : 1,
+    background: "background.paper",
     position: "relative",
     transition: "all 0.3s",
     minHeight: 370,
-    pointerEvents: protectedCard ? "auto" : "auto",
-    filter: "none",
   });
 
   // === Kid Card ===
   const KidCard = ({ kid }: any) => {
-    const protectedCard = isKidProtected(kid.id);
-    const activeCard = handedOverKidId === kid.id;
-    // All three buttons always shown; disabled on protected cards except in parent mode/active card
-
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        whileHover={protectedCard ? {} : { y: -4 }}
+        whileHover={{ y: -4 }}
         transition={{ duration: 0.2 }}
       >
-        <Card sx={getCardSX(protectedCard, activeCard)}>
-          {/* Protected label/icon at top right when locked */}
-          {protectedCard && (
-            <Box
+        <Card sx={getCardSX()}>
+          <Box className="absolute top-2 right-2 z-10 flex gap-1">
+            <IconButton
+              size="small"
+              onClick={() => handleEditKid(kid)}
               sx={{
-                position: "absolute",
-                top: 14,
-                right: 22,
-                display: "flex",
-                alignItems: "center",
-                zIndex: 5,
+                bgcolor: "background.paper",
+                "&:hover": { bgcolor: "primary.main", color: "white" },
               }}
             >
-              <SecurityIcon sx={{ color: "#b71c1c", fontSize: 22, mr: 0.7 }} />
-              <Typography
-                variant="body2"
-                sx={{ color: "#c62828", fontWeight: 500 }}
-              >
-                Protected
-              </Typography>
-            </Box>
-          )}
-          {/* Action Buttons (parent mode only, not protected) */}
-          {!protectedCard && isParentMode && (
-            <Box className="absolute top-2 right-2 z-10 flex gap-1">
-              <IconButton
-                size="small"
-                onClick={() => handleEditKid(kid)}
-                sx={{
-                  bgcolor: "background.paper",
-                  "&:hover": { bgcolor: "primary.main", color: "white" },
-                }}
-              >
-                <Edit fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={() => handleDeleteKid(kid.id)}
-                sx={{
-                  bgcolor: "background.paper",
-                  "&:hover": { bgcolor: "error.main", color: "white" },
-                }}
-              >
-                <Delete fontSize="small" />
-              </IconButton>
-            </Box>
-          )}
+              <Edit fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => handleDeleteKid(kid.id)}
+              sx={{
+                bgcolor: "background.paper",
+                "&:hover": { bgcolor: "error.main", color: "white" },
+              }}
+            >
+              <Delete fontSize="small" />
+            </IconButton>
+          </Box>
+
           <CardContent sx={{ pb: 2 }}>
             <Box className="flex items-center gap-3 mb-4">
               <Avatar
@@ -230,7 +164,6 @@ const Kids = () => {
                   fontSize: "24px",
                   fontWeight: "500",
                   color: "#002979 ",
-                  border: activeCard ? "2.5px solid #50b750" : undefined,
                 }}
               >
                 {kid?.name?.charAt(0).toUpperCase()}
@@ -333,37 +266,13 @@ const Kids = () => {
               </Typography>
               <Box className="flex flex-wrap gap-1">{/* Placeholder */}</Box>
             </Box>
-            {/* ---- Always show all three buttons. Disable if protected, else parent/handed can activate ---- */}
-            <Stack direction={"row"} gap={1}>
+            {/* FIXED: Handover Button Centered */}
+            <Stack direction="row" justifyContent="center" gap={1}>
               <PmsButton
                 buttonVarient="contained"
                 name={"Handover"}
                 buttonClick={() => handleHandover(kid.id)}
                 startIcon={<SecurityIcon />}
-                isDisable={handedOverKidId !== null}
-              />
-              <PmsButton
-                buttonVarient="outlined"
-                name={"Chat"}
-                buttonClick={() => {
-                  if (!protectedCard) {
-                    setSelectedKid(kid);
-                    setKidPage("chatPage");
-                  }
-                }}
-                startIcon={<Chat />}
-                isDisable={protectedCard}
-              />
-              <PmsButton
-                buttonVarient="outlined"
-                name={"Quiz"}
-                buttonClick={() => {
-                  if (!protectedCard) {
-                    navigate("/kids/quiz");
-                  }
-                }}
-                startIcon={<Quiz />}
-                isDisable={protectedCard}
               />
             </Stack>
           </CardContent>
@@ -374,62 +283,55 @@ const Kids = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 2 }}>
-      {kidPage === "kidPage" ? (
-        <>
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Box className="flex items-center justify-between mb-8">
-              <Box>
-                <Typography fontSize={"24px"} fontWeight={600}>
-                  Your Kids 👨‍👩‍👧‍👦
-                </Typography>
-                <Typography
-                  fontSize={"14px"}
-                  fontWeight={400}
-                  color="textDisabled"
-                >
-                  Manage and track your children's learning progress
-                </Typography>
-              </Box>
-              {isParentMode && (
-                <PmsButton
-                  buttonVarient="contained"
-                  name={"Add New Kid"}
-                  buttonClick={handleAddKid}
-                  startIcon={<Add />}
-                />
-              )}
-            </Box>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.3 }}
-          >
-            <Box className="mb-6"></Box>
-          </motion.div>
-          <Grid container spacing={3}>
-            <AnimatePresence>
-              {kids.map((kid, index) => (
-                <Grid size={{ lg: 4, xs: 12, sm: 6 }} key={kid.id}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.5 }}
-                  >
-                    <KidCard kid={kid} />
-                  </motion.div>
-                </Grid>
-              ))}
-            </AnimatePresence>
-          </Grid>
-        </>
-      ) : (
-        <ChatPage setKidPage={setKidPage} kidId={selectedKid?.id ?? 0} />
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Box className="flex items-center justify-between mb-8">
+          <Box>
+            <Typography fontSize={"24px"} fontWeight={600}>
+              Your Kids 👨‍👩‍👧‍👦
+            </Typography>
+            <Typography
+              fontSize={"14px"}
+              fontWeight={400}
+              color="textDisabled"
+            >
+              Manage and track your children's learning progress
+            </Typography>
+          </Box>
+          <PmsButton
+            buttonVarient="contained"
+            name={"Add New Kid"}
+            buttonClick={handleAddKid}
+            startIcon={<Add />}
+          />
+        </Box>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
+      >
+        <Box className="mb-6"></Box>
+      </motion.div>
+      <Grid container spacing={3}>
+        <AnimatePresence>
+          {kids.map((kid, index) => (
+            <Grid size={{ lg: 4, xs: 12, sm: 6 }} key={kid.id}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+              >
+                <KidCard kid={kid} />
+              </motion.div>
+            </Grid>
+          ))}
+        </AnimatePresence>
+      </Grid>
+
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
