@@ -127,7 +127,7 @@ function ChatPage() {
       </Dialog>
 
       {/* Main Chat UI Layout */}
-      <Grid container sx={{ height: "85vh", overflow: "hidden" }} spacing={0}>
+      <Grid container sx={{ height: "calc(100vh - 100px)", overflow: "hidden" }} spacing={0}>
         {/* Chat History Sidebar */}
         <Grid size={{ xs: 12, sm: 5, md: 4, lg: 3 }} sx={{
           borderRight: "1px solid", borderColor: "divider", bgcolor: "#f5f9fd",
@@ -170,105 +170,99 @@ function ChatPage() {
 
         {/* Chat Main Area */}
         <Grid size={{ xs: 12, sm: 7, md: 8, lg: 9 }} sx={{
-          display: "flex", flexDirection: "column", minHeight: "50vh", height: "80vh", bgcolor: "#fafafa",
+          display: "flex", flexDirection: "column", height: "100%", bgcolor: "#fafafa",
         }}>
           {/* Chat Header */}
           <Stack direction="row" justifyContent="space-between" alignItems="center"
             sx={{
-              borderBottom: "1px solid", borderColor: "divider", px: 4, pt: 2, bgcolor: "#f7f8fa",
-              borderTopLeftRadius: 16, borderTopRightRadius: 16, mt: 4,
+              borderBottom: "1px solid", borderColor: "divider", px: 4, py: 1, bgcolor: "#f7f8fa",
             }}>
-            <Stack direction={"row"} alignItems={"center"} gap={1} sx={{ mb: 1 }}>
+            <Stack direction={"row"} alignItems={"center"} gap={1}>
               <Avatar alt="AI Tutor" sx={{ bgcolor: "#64b5f6" }}>🤖</Avatar>
               <Typography variant="h6" color="#1976d2">Chat with Tutor</Typography>
             </Stack>
-            <Stack>
-              <PmsButton buttonVarient="contained" name={" Add New Chat"} buttonClick={() => { setOpenDialog(true); setChatName(""); setMessages([]); }} startIcon={<ForumOutlinedIcon />} />
-            </Stack>
+            <PmsButton buttonVarient="contained" name={" Add New Chat"} buttonClick={() => { setOpenDialog(true); setChatName(""); setMessages([]); }} startIcon={<ForumOutlinedIcon />} />
           </Stack>
 
           {/* Chat Messages List */}
-          <Stack sx={{ minHeight: "78vh" }}>
-            <Box sx={{ flex: 1, overflowY: "auto", px: { xs: 1, sm: 3 }, py: 3, position: "relative" }}>
-              <AnimatePresence initial={false}>
-                {messages.map((msg, i) => (
-                  <motion.div key={`q_${msg.id}_${i}`} variants={bubbleVariants} initial="initial" animate="animate" exit={{ opacity: 0 }}>
-                    {/* User message */}
-                    <Box sx={{ display: "flex", flexDirection: "row-reverse", alignItems: "flex-end", gap: 1, mb: 1.4 }}>
-                      <Avatar sx={{ bgcolor: "#ffcc80", color: "#5d4037", ml: 1, width: 38, height: 38, fontWeight: 700, fontSize: 20 }}>👦</Avatar>
-                      <Paper elevation={2} sx={{
-                        background: userBubbleGradient, px: 2.2, py: 1.5, borderRadius: "16px 18px 4px 20px", maxWidth: "68%", fontSize: 16,
-                      }}><Typography fontSize={15}>{msg.question}</Typography></Paper>
-                    </Box>
-                    {/* Bot answer */}
-                    {msg.answer && (
-                      <motion.div variants={bubbleVariants} initial="initial" animate="animate">
-                        <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1, mb: 1 }}>
-                          <Avatar sx={{
-                            bgcolor: "#90caf9", color: "#0d47a1", width: 38, height: 38, fontWeight: 900, fontSize: 20, border: "2px solid #e3f2fd",
-                          }}>🤖</Avatar>
-                          <Paper elevation={2} sx={{
-                            background: tutorBubbleGradient, px: 2.4, py: 1.6, borderRadius: "18px 16px 20px 4px", maxWidth: "72%", fontSize: 16,
-                          }}><Typography fontSize={15}>{msg.answer}</Typography></Paper>
-                        </Box>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                ))}
-                {/* Typing indicator */}
-                {isTutorTyping && (
-                  <motion.div key="tutor-thinking" initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.25 }}>
-                    <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
-                      <Avatar sx={{ bgcolor: "#90caf9", color: "#0d47a1", width: 38, height: 38 }}>🤖</Avatar>
-                      <Paper elevation={2} sx={{
-                        background: tutorBubbleGradient, px: 2.2, py: 1.5, borderRadius: "18px 18px 20px 4px", maxWidth: "62%",
-                      }}><Typography fontSize={12} fontStyle="italic" color="text.secondary">Tutor is typing…</Typography></Paper>
-                    </Box>
-                  </motion.div>
-                )}
-                <div ref={messagesEndRef} />
-              </AnimatePresence>
-            </Box>
+          <Box sx={{ flex: 1, overflowY: "auto", p: 3 }}>
+            <AnimatePresence initial={false}>
+              {messages.map((msg, i) => (
+                <motion.div key={`q_${msg.id}_${i}`} variants={bubbleVariants} initial="initial" animate="animate" exit={{ opacity: 0 }}>
+                  {/* User message */}
+                  <Box sx={{ display: "flex", flexDirection: "row-reverse", alignItems: "flex-end", gap: 1, mb: 1.4 }}>
+                    <Avatar sx={{ bgcolor: "#ffcc80", color: "#5d4037", ml: 1, width: 38, height: 38, fontWeight: 700, fontSize: 20 }}>👦</Avatar>
+                    <Paper elevation={2} sx={{
+                      background: userBubbleGradient, px: 2.2, py: 1.5, borderRadius: "16px 18px 4px 20px", maxWidth: "68%", fontSize: 16,
+                    }}><Typography fontSize={15}>{msg.question}</Typography></Paper>
+                  </Box>
+                  {/* Bot answer */}
+                  {msg.answer && (
+                    <motion.div variants={bubbleVariants} initial="initial" animate="animate">
+                      <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1, mb: 1 }}>
+                        <Avatar sx={{
+                          bgcolor: "#90caf9", color: "#0d47a1", width: 38, height: 38, fontWeight: 900, fontSize: 20, border: "2px solid #e3f2fd",
+                        }}>🤖</Avatar>
+                        <Paper elevation={2} sx={{
+                          background: tutorBubbleGradient, px: 2.4, py: 1.6, borderRadius: "18px 16px 20px 4px", maxWidth: "72%", fontSize: 16,
+                        }}><Typography fontSize={15}>{msg.answer}</Typography></Paper>
+                      </Box>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ))}
+              {/* Typing indicator */}
+              {isTutorTyping && (
+                <motion.div key="tutor-thinking" initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.25 }}>
+                  <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
+                    <Avatar sx={{ bgcolor: "#90caf9", color: "#0d47a1", width: 38, height: 38 }}>🤖</Avatar>
+                    <Paper elevation={2} sx={{
+                      background: tutorBubbleGradient, px: 2.2, py: 1.5, borderRadius: "18px 18px 20px 4px", maxWidth: "62%",
+                    }}><Typography fontSize={12} fontStyle="italic" color="text.secondary">Tutor is typing…</Typography></Paper>
+                  </Box>
+                </motion.div>
+              )}
+              <div ref={messagesEndRef} />
+            </AnimatePresence>
+          </Box>
 
-            {/* Input bar */}
-            <Box sx={{
-              borderTop: "1px solid #f0f0f0", p: 2, bgcolor: "#f7f8fa",
-              borderBottomLeftRadius: 16, borderBottomRightRadius: 16, position: "sticky", bottom: 0, zIndex: 5,
-            }}>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <IconButton aria-label="Insert emoji" onClick={() => handleEmojiClick("😊")}>
-                  <EmojiEmotionsIcon color="primary" />
-                </IconButton>
-                <TextField
-                  fullWidth variant="outlined" size="small"
-                  placeholder={isListening ? "Listening… speak now" : "Type your message…"}
-                  value={input} autoFocus onChange={e => setInput(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && handleSend()}
-                  sx={{ background: "#fff", borderRadius: "20px", fontSize: "14px", "& .MuiOutlinedInput-root": { borderRadius: "20px" } }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Tooltip title={isListening ? "Stop voice input" : "Speak your message"}>
-                          <span>
-                            <IconButton
-                              aria-label={isListening ? "Stop recording" : "Start recording"}
-                              onClick={handleMicClick}
-                              color={isListening ? "primary" : "default"}
-                              disabled={typeof window === "undefined" || !("webkitSpeechRecognition" in window)}
-                            >
-                              <MicIcon sx={{ color: isListening ? "red" : "#81d4fa" }} />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <PmsButton buttonVarient="contained" name={" Send"} buttonClick={handleSend} isDisable={input.length === 0 || isLoading} />
-              </Stack>
-            </Box>
-          </Stack>
+          {/* Input bar */}
+          <Box sx={{
+            borderTop: "1px solid #f0f0f0", p: 2, bgcolor: "#f7f8fa",
+          }}>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <IconButton aria-label="Insert emoji" onClick={() => handleEmojiClick("😊")}>
+                <EmojiEmotionsIcon color="primary" />
+              </IconButton>
+              <TextField
+                fullWidth variant="outlined" size="small"
+                placeholder={isListening ? "Listening… speak now" : "Type your message…"}
+                value={input} autoFocus onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSend()}
+                sx={{ background: "#fff", borderRadius: "20px", fontSize: "14px", "& .MuiOutlinedInput-root": { borderRadius: "20px" } }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Tooltip title={isListening ? "Stop voice input" : "Speak your message"}>
+                        <span>
+                          <IconButton
+                            aria-label={isListening ? "Stop recording" : "Start recording"}
+                            onClick={handleMicClick}
+                            color={isListening ? "primary" : "default"}
+                            disabled={typeof window === "undefined" || !("webkitSpeechRecognition" in window)}
+                          >
+                            <MicIcon sx={{ color: isListening ? "red" : "#81d4fa" }} />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <PmsButton buttonVarient="contained" name={" Send"} buttonClick={handleSend} isDisable={input.length === 0 || isLoading} />
+            </Stack>
+          </Box>
         </Grid>
       </Grid>
     </>
