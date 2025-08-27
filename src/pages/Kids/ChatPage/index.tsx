@@ -127,7 +127,7 @@ function ChatPage() {
       </Dialog>
 
       {/* Main Chat UI Layout */}
-      <Grid container sx={{ height: "calc(100vh - 100px)", overflow: "hidden" }} spacing={0}>
+      <Grid container sx={{ height: "100%", overflow: "hidden" }} spacing={0}>
         {/* Chat History Sidebar */}
         <Grid size={{ xs: 12, sm: 5, md: 4, lg: 3 }} sx={{
           borderRight: "1px solid", borderColor: "divider", bgcolor: "#f5f9fd",
