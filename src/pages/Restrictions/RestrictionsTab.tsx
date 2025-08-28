@@ -94,7 +94,7 @@ const RestrictionsTab: React.FC = () => {
       </Box>
       <Card sx={{ minHeight: '400px', width: '100%', px: 2}}>
         <CardContent>
-          <Typography variant="h6" component="div" sx={{ mb: 2 }}>
+          <Typography variant="h6" component="div" sx={{ mb: 2 }} color="#002979">
             Keyword Restrictions
           </Typography>
           <TableContainer>
