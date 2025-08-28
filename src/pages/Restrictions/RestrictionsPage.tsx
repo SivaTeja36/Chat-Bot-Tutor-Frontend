@@ -24,7 +24,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box>
           {children}
         </Box>
       )}
@@ -46,7 +46,7 @@ const RestrictionsPage: React.FC = () => {
       transition={{ duration: 0.5 }}
     >
       <Box sx={{ width: "100%" }}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Box sx={{ px: 1, borderBottom: 1, borderColor: "divider" }}>
           <Tabs value={value} onChange={handleChange} aria-label="restrictions tabs">
             <Tab label="Restrictions" />
             <Tab label="Kid Restrictions" />

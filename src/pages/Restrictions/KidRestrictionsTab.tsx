@@ -1,6 +1,6 @@
 import { formatDate } from "../../utils/date";
 import { Edit, Delete } from "@mui/icons-material";
-import { Card, CardContent, Typography } from "@mui/material";
+import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import { PmsButton } from "../../components/ui/button";
 import React, { useState } from "react";
@@ -131,10 +131,10 @@ const KidRestrictionsTab: React.FC = () => {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.2, duration: 0.3 }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', my: 1, mx: 2 }}>
         <PmsButton buttonVarient="contained" name={"Map Restriction to Kid"} buttonClick={() => handleOpen()} />
       </Box>
-      <Card sx={{ minHeight: '200px' }}>
+      <Card sx={{ minHeight: '400px', width: '100%', px: 2 }}>
         <CardContent>
           <Typography variant="h6" component="div" sx={{ mb: 2 }}>
             Kid Keyword Restrictions
@@ -219,12 +219,16 @@ const KidRestrictionsTab: React.FC = () => {
         </form>
       </Dialog>
 
-      <Dialog open={openKeywords} onClose={handleCloseKeywords}>
+      <Dialog open={openKeywords} onClose={handleCloseKeywords} maxWidth="xs" fullWidth>
         <DialogTitle>Keywords</DialogTitle>
-        <DialogContent sx={{ p: 2 }}>
+        <DialogContent sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           {selectedKeywords.map((keyword, index) => (
-            <Box key={index} sx={{ mb: 1 }}>
-              <Chip label={keyword} variant="outlined" />
+            <Box key={index}>
+              <Stack p={ 1 } borderRadius={"4px"} sx={{backgroundColor: "#002979", justifyContent: "center", width: "100%"}}>
+                <Typography textAlign={"center"} color="white">
+                  {keyword}
+                </Typography>
+                </Stack>
             </Box>
           ))}
         </DialogContent>
