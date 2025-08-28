@@ -28,7 +28,7 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel, Chip,
+  InputLabel, Chip, Tooltip
 } from "@mui/material";
 
 const KidRestrictionsTab: React.FC = () => {
@@ -174,8 +174,8 @@ const KidRestrictionsTab: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+        <DialogTitle component={motion.h6} initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           {selectedKidRestriction ? "Update" : "Map"} Restriction to Kid
         </DialogTitle>
         <form onSubmit={handleSubmit}>
@@ -185,6 +185,7 @@ const KidRestrictionsTab: React.FC = () => {
               <Select
                 name="kidId"
                 defaultValue={selectedKidRestriction?.kid.id || ""}
+                variant="outlined"
               >
                 {kids?.data.data.map((kid: GetKidResponse) => (
                   <MenuItem key={kid.id} value={kid.id}>
@@ -198,14 +199,19 @@ const KidRestrictionsTab: React.FC = () => {
               <Select
                 name="restrictionId"
                 defaultValue={selectedKidRestriction?.keyword_restrictions.id || ""}
+                variant="outlined"
               >
                 {restrictions?.data.data.map(
                   (restriction: GetKeywordRestrictionResponse) => (
                     <MenuItem key={restriction.id} value={restriction.id}>
-                      {restriction.title}
-                      {restriction.keywords.length > 0 && (
-                        <> ({restriction.keywords.join(", ")})</>
-                      )}
+                      <Tooltip title={restriction.keywords.join(", ")}>
+                        <Typography noWrap>
+                          {restriction.title}
+                          {restriction.keywords.length > 0 && (
+                            <> ({restriction.keywords.slice(0, 3).join(", ")}{restriction.keywords.length > 3 ? '...' : ''})</>
+                          )}
+                        </Typography>
+                      </Tooltip>
                     </MenuItem>
                   )
                 )}
