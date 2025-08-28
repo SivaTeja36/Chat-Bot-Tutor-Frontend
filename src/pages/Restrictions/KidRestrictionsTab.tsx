@@ -1,3 +1,4 @@
+import { formatDate } from "../../utils/date";
 import { Edit, Delete } from "@mui/icons-material";
 import { Card, CardContent, Typography } from "@mui/material";
 import { motion } from "framer-motion";
@@ -27,12 +28,14 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
+  InputLabel, Chip,
 } from "@mui/material";
 
 const KidRestrictionsTab: React.FC = () => {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [openKeywords, setOpenKeywords] = useState(false);
+  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [selectedKidRestriction, setSelectedKidRestriction] =
     useState<GetKidKeywordRestrictionResponse | null>(null);
 
@@ -87,6 +90,16 @@ const KidRestrictionsTab: React.FC = () => {
     setSelectedKidRestriction(null);
   };
 
+  const handleOpenKeywords = (keywords: string[]) => {
+    setSelectedKeywords(keywords);
+    setOpenKeywords(true);
+  };
+
+  const handleCloseKeywords = () => {
+    setOpenKeywords(false);
+    setSelectedKeywords([]);
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -121,32 +134,34 @@ const KidRestrictionsTab: React.FC = () => {
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
         <PmsButton buttonVarient="contained" name={"Map Restriction to Kid"} buttonClick={() => handleOpen()} />
       </Box>
-      <Card>
+      <Card sx={{ minHeight: '200px' }}>
         <CardContent>
           <Typography variant="h6" component="div" sx={{ mb: 2 }}>
             Kid Keyword Restrictions
           </Typography>
           <TableContainer>
-            <Table>
-              <TableHead>
+            <Table sx={{ "& .MuiTableCell-root": { padding: '12px 16px' } }}>
+              <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                 <TableRow>
-                  <TableCell>Kid</TableCell>
-                  <TableCell>Restriction</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Kid</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Restriction</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Created At</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Updated At</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {kidRestrictions?.data.data.map((kidRestriction) => (
+                {kidRestrictions?.data.data.map((kidRestriction, index: number) => (
                   <TableRow
                     key={`${kidRestriction.kid.id}-${kidRestriction.keyword_restrictions.id}`}
+                    sx={{ "&:hover": { backgroundColor: '#f9f9f9' }, backgroundColor: index % 2 === 0 ? '#fff' : '#f5f5f5' }}
                   >
                     <TableCell>{kidRestriction.kid.name}</TableCell>
                     <TableCell>
-                      {kidRestriction.keyword_restrictions.title}
-                      {kidRestriction.keyword_restrictions.keywords.length > 0 && (
-                        <> ({kidRestriction.keyword_restrictions.keywords.join(", ")})</>
-                      )}
+                      <PmsButton buttonVarient="outlined" name={`${kidRestriction.keyword_restrictions.keywords.length} keywords`} buttonClick={() => handleOpenKeywords(kidRestriction.keyword_restrictions.keywords)} />
                     </TableCell>
+                    <TableCell>{formatDate(kidRestriction.keyword_restrictions.created_at)}</TableCell>
+                    <TableCell>{formatDate(kidRestriction.keyword_restrictions.updated_at)}</TableCell>
                     <TableCell>
                       <PmsButton buttonVarient="outlined" name={"Update"} buttonClick={() => handleOpen(kidRestriction)} startIcon={<Edit />} />
                       <PmsButton buttonVarient="outlined" name={"Delete"} buttonClick={() => handleDelete(kidRestriction.keyword_restrictions.id, kidRestriction.kid.id)} startIcon={<Delete />} />
@@ -202,6 +217,20 @@ const KidRestrictionsTab: React.FC = () => {
             <PmsButton buttonVarient="contained" name={selectedKidRestriction ? "Update" : "Map"} type="submit" />
           </DialogActions>
         </form>
+      </Dialog>
+
+      <Dialog open={openKeywords} onClose={handleCloseKeywords}>
+        <DialogTitle>Keywords</DialogTitle>
+        <DialogContent sx={{ p: 2 }}>
+          {selectedKeywords.map((keyword, index) => (
+            <Box key={index} sx={{ mb: 1 }}>
+              <Chip label={keyword} variant="outlined" />
+            </Box>
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <PmsButton buttonVarient="outlined" name={"Close"} buttonClick={handleCloseKeywords} />
+        </DialogActions>
       </Dialog>
     </motion.div>
   );
