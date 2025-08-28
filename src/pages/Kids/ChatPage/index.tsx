@@ -72,7 +72,21 @@ function ChatPage() {
     catch (err) { console.error("Error:", err); }
   };
 
-  useEffect(() => { handleGetChat(); }, []);
+  useEffect(() => {
+    const fetchChatData = async () => {
+      try {
+        const response = await kidsAPI.getChat(Number(kidId));
+        setChatData(response.data.data);
+        // Select the first chat by default if chatData exists
+        if (response.data.data && response.data.data.length > 0) {
+          setSelectedChatId(response.data.data[0].id);
+        }
+      } catch (err) {
+        console.error("Error:", err);
+      }
+    };
+    fetchChatData();
+  }, [kidId]);
   useEffect(() => {
     const getAllChatConversation = async () => {
       if (!selectedChatId) return;
@@ -228,41 +242,44 @@ function ChatPage() {
           </Box>
 
           {/* Input bar */}
-          <Box sx={{
-            borderTop: "1px solid #f0f0f0", p: 2, bgcolor: "#f7f8fa",
-          }}>
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <IconButton aria-label="Insert emoji" onClick={() => handleEmojiClick("😊")}>
-                <EmojiEmotionsIcon color="primary" />
-              </IconButton>
-              <TextField
-                fullWidth variant="outlined" size="small"
-                placeholder={isListening ? "Listening… speak now" : "Type your message…"}
-                value={input} autoFocus onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleSend()}
-                sx={{ background: "#fff", borderRadius: "20px", fontSize: "14px", "& .MuiOutlinedInput-root": { borderRadius: "20px" } }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Tooltip title={isListening ? "Stop voice input" : "Speak your message"}>
-                        <span>
-                          <IconButton
-                            aria-label={isListening ? "Stop recording" : "Start recording"}
-                            onClick={handleMicClick}
-                            color={isListening ? "primary" : "default"}
-                            disabled={typeof window === "undefined" || !("webkitSpeechRecognition" in window)}
-                          >
-                            <MicIcon sx={{ color: isListening ? "red" : "#81d4fa" }} />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <PmsButton buttonVarient="contained" name={" Send"} buttonClick={handleSend} isDisable={input.length === 0 || isLoading} />
-            </Stack>
-          </Box>
+          {selectedChatId !== 0 && (
+            <Box sx={{
+              borderTop: "1px solid #f0f0f0", p: 2, bgcolor: "#f7f8fa",
+            }}>
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <IconButton aria-label="Insert emoji" onClick={() => handleEmojiClick("😊")}>
+                  <EmojiEmotionsIcon color="primary" />
+                </IconButton>
+                <TextField
+                  fullWidth variant="outlined" size="small"
+                  placeholder={isListening ? "Listening… speak now" : "Type your message…"}
+                  value={input} autoFocus onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleSend()}
+                  sx={{ background: "#fff", borderRadius: "20px", fontSize: "14px", "& .MuiOutlinedInput-root": { borderRadius: "20px" } }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Tooltip title={isListening ? "Stop voice input" : "Speak your message"}>
+                          <span>
+                            <IconButton
+                              aria-label={isListening ? "Stop recording" : "Start recording"}
+                              onClick={handleMicClick}
+                              color={isListening ? "primary" : "default"}
+                              disabled={typeof window === "undefined" || !("webkitSpeechRecognition" in window)}
+                            >
+                              <MicIcon sx={{ color: isListening ? "red" : "#81d4fa" }} />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      </InputAdornment>
+                    ),
+                  }}
+                  disabled={!selectedChatId}
+                />
+                <PmsButton buttonVarient="contained" name={" Send"} buttonClick={handleSend} isDisable={input.length === 0 || isLoading || !selectedChatId} />
+              </Stack>
+            </Box>
+          )}
         </Grid>
       </Grid>
     </>
