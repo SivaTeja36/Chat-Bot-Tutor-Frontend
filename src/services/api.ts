@@ -228,7 +228,7 @@ export const keywordRestrictionsAPI = {
     page_size?: number;
   }) =>
     api.get<GetApiResponse<GetKidKeywordRestrictionResponse[]>>(
-      "/keyword-restrictions/kids-keyword-restrictions",
+      "/kids-keyword-restrictions",
       { params }
     ),
 };

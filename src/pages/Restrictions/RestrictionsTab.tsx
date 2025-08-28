@@ -1,3 +1,6 @@
+import { Edit } from "@mui/icons-material";
+import { Card, CardContent, Typography } from "@mui/material";
+import { motion } from "framer-motion";
 import { PmsButton } from "../../components/ui/button";
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -68,32 +71,43 @@ const RestrictionsTab: React.FC = () => {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.2, duration: 0.3 }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
         <PmsButton buttonVarient="contained" name={"Create Restriction"} buttonClick={() => handleOpen()} />
       </Box>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Keywords</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {restrictions?.data.data.map((restriction: GetKeywordRestrictionResponse) => (
-              <TableRow key={restriction.id}>
-                <TableCell>{restriction.title}</TableCell>
-                <TableCell>{restriction.keywords.join(", ")}</TableCell>
-                <TableCell>
-                  <PmsButton buttonVarient="outlined" name={"Update"} buttonClick={() => handleOpen(restriction)} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Card>
+        <CardContent>
+          <Typography variant="h6" component="div" sx={{ mb: 2 }}>
+            Keyword Restrictions
+          </Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Title</TableCell>
+                  <TableCell>Keywords</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {restrictions?.data.data.map((restriction: GetKeywordRestrictionResponse) => (
+                  <TableRow key={restriction.id}>
+                    <TableCell>{restriction.title}</TableCell>
+                    <TableCell>{restriction.keywords.join(", ")}</TableCell>
+                    <TableCell>
+                      <PmsButton buttonVarient="outlined" name={"Update"} buttonClick={() => handleOpen(restriction)} startIcon={<Edit />} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{selectedRestriction ? "Update" : "Create"} Restriction</DialogTitle>
@@ -123,7 +137,7 @@ const RestrictionsTab: React.FC = () => {
           </DialogActions>
         </form>
       </Dialog>
-    </div>
+    </motion.div>
   );
 };
 

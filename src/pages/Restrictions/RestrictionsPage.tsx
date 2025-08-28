@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import React from "react";
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
@@ -39,20 +40,26 @@ const RestrictionsPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs value={value} onChange={handleChange} aria-label="restrictions tabs">
-          <Tab label="Restrictions" />
-          <Tab label="Kid Restrictions" />
-        </Tabs>
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Box sx={{ width: "100%" }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Tabs value={value} onChange={handleChange} aria-label="restrictions tabs">
+            <Tab label="Restrictions" />
+            <Tab label="Kid Restrictions" />
+          </Tabs>
+        </Box>
+        <TabPanel value={value} index={0}>
+          <RestrictionsTab />
+        </TabPanel>
+        <TabPanel value={value} index={1}>
+          <KidRestrictionsTab />
+        </TabPanel>
       </Box>
-      <TabPanel value={value} index={0}>
-        <RestrictionsTab />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <KidRestrictionsTab />
-      </TabPanel>
-    </Box>
+    </motion.div>
   );
 };
 

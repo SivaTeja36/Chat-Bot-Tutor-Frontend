@@ -1,3 +1,6 @@
+import { Edit, Delete } from "@mui/icons-material";
+import { Card, CardContent, Typography } from "@mui/material";
+import { motion } from "framer-motion";
 import { PmsButton } from "../../components/ui/button";
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -33,17 +36,17 @@ const KidRestrictionsTab: React.FC = () => {
   const [selectedKidRestriction, setSelectedKidRestriction] =
     useState<GetKidKeywordRestrictionResponse | null>(null);
 
-  const { data: kidRestrictions, isLoading: isLoadingKidRestrictions } = useQuery({
+  const { data: kidRestrictions, isLoading: isLoadingKidRestrictions, isError: isErrorKidRestrictions } = useQuery({
     queryKey: ["kidRestrictions"],
     queryFn: () => keywordRestrictionsAPI.getAllKidsKeywordRestrictions(),
   });
 
-  const { data: kids, isLoading: isLoadingKids } = useQuery({
+  const { data: kids, isLoading: isLoadingKids, isError: isErrorKids } = useQuery({
     queryKey: ["kids"],
     queryFn: () => kidsAPI.getAllKids(),
   });
 
-  const { data: restrictions, isLoading: isLoadingRestrictions } = useQuery({
+  const { data: restrictions, isLoading: isLoadingRestrictions, isError: isErrorRestrictions } = useQuery({
     queryKey: ["restrictions"],
     queryFn: () => keywordRestrictionsAPI.getAllRestrictions(),
   });
@@ -106,42 +109,55 @@ const KidRestrictionsTab: React.FC = () => {
   if (isLoadingKidRestrictions || isLoadingKids || isLoadingRestrictions)
     return <div>Loading...</div>;
 
+  if (isErrorKidRestrictions || isErrorKids || isErrorRestrictions)
+    return <div>Error fetching data.</div>;
+
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.2, duration: 0.3 }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
         <PmsButton buttonVarient="contained" name={"Map Restriction to Kid"} buttonClick={() => handleOpen()} />
       </Box>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Kid</TableCell>
-              <TableCell>Restriction</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {kidRestrictions?.data.data.map((kidRestriction) => (
-              <TableRow
-                key={`${kidRestriction.kid.id}-${kidRestriction.keyword_restrictions.id}`}
-              >
-                <TableCell>{kidRestriction.kid.name}</TableCell>
-                <TableCell>
-                  {/* You can display title or join keywords */}
-                  {kidRestriction.keyword_restrictions.title}
-                  {kidRestriction.keyword_restrictions.keywords.length > 0 && (
-                    <> ({kidRestriction.keyword_restrictions.keywords.join(", ")})</>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <PmsButton buttonVarient="outlined" name={"Update"} buttonClick={() => handleOpen(kidRestriction)} />
-                  <PmsButton buttonVarient="outlined" name={"Delete"} buttonClick={() => handleDelete(kidRestriction.keyword_restrictions.id, kidRestriction.kid.id)} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Card>
+        <CardContent>
+          <Typography variant="h6" component="div" sx={{ mb: 2 }}>
+            Kid Keyword Restrictions
+          </Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Kid</TableCell>
+                  <TableCell>Restriction</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {kidRestrictions?.data.data.map((kidRestriction) => (
+                  <TableRow
+                    key={`${kidRestriction.kid.id}-${kidRestriction.keyword_restrictions.id}`}
+                  >
+                    <TableCell>{kidRestriction.kid.name}</TableCell>
+                    <TableCell>
+                      {kidRestriction.keyword_restrictions.title}
+                      {kidRestriction.keyword_restrictions.keywords.length > 0 && (
+                        <> ({kidRestriction.keyword_restrictions.keywords.join(", ")})</>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <PmsButton buttonVarient="outlined" name={"Update"} buttonClick={() => handleOpen(kidRestriction)} startIcon={<Edit />} />
+                      <PmsButton buttonVarient="outlined" name={"Delete"} buttonClick={() => handleDelete(kidRestriction.keyword_restrictions.id, kidRestriction.kid.id)} startIcon={<Delete />} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>
@@ -187,7 +203,7 @@ const KidRestrictionsTab: React.FC = () => {
           </DialogActions>
         </form>
       </Dialog>
-    </div>
+    </motion.div>
   );
 };
 
