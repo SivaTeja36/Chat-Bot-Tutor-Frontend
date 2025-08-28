@@ -26,11 +26,12 @@ import {
   Dashboard,
   ChildCare,
   Person,
+  Security,
   Logout,
 } from "@mui/icons-material";
 import { authAPI } from "../../services/api";
 import Logo from "../../assets/chatbot.png";
-import BlockIcon from '@mui/icons-material/Block';
+
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 
 const drawerWidth = 280;
@@ -82,7 +83,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const menuItems = [
     { text: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
     { text: "Kids", icon: <ChildCare />, path: "/kids" },
-    { text: "Parent Control", icon: <BlockIcon />, path: "/restrictions" },
+    { text: "Parent Control", icon: <Security />, path: "/parent-control" },
     { text: "Profile", icon: <Person />, path: "/profile" },
   ];
 

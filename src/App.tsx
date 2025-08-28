@@ -65,7 +65,7 @@ function App() {
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/kids" element={<ProtectedRoute><KidsPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-              <Route path="/restrictions" element={<ProtectedRoute><RestrictionsPage /></ProtectedRoute>} />
+              <Route path="/parent-control" element={<ProtectedRoute><RestrictionsPage /></ProtectedRoute>} />
 
               {/* Nested handover routes, with auth protection */}
               <Route path="/handover/:kidId" element={<HandoverRoute />}>
