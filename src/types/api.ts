@@ -169,3 +169,73 @@ export interface IChat {
   id: number;
   message: string;
 }
+
+
+/* ---------- KEYWORD RESTRICTION TYPES ---------- */
+
+/**
+ * Request model for creating/updating keyword restrictions
+ */
+export interface KeywordRestrictionRequest {
+  title: string;
+  keywords: string[]; // array of forbidden words
+}
+
+/**
+ * Response model for keyword restriction details
+ */
+export interface GetKeywordRestrictionResponse {
+  id: number;
+  title: string;
+  keywords: string[];
+  created_at: string;   // ISO date-time
+  created_by: string;
+  updated_at: string;   // ISO date-time
+  updated_by: string;
+}
+
+/**
+ * Response model for a kid + their mapped keyword restriction
+ */
+export interface GetKidKeywordRestrictionResponse {
+  kid: GetKidResponse; // already defined in your code
+  keyword_restrictions: GetKeywordRestrictionResponse;
+}
+
+/**
+ * Response wrapper for single KeywordRestriction
+ */
+export interface ApiResponse_GetKeywordRestriction {
+  status_message: string;
+  data: GetKeywordRestrictionResponse;
+}
+
+/**
+ * Response wrapper for single KidKeywordRestriction
+ */
+export interface ApiResponse_GetKidKeywordRestriction {
+  status_message: string;
+  data: GetKidKeywordRestrictionResponse;
+}
+
+/**
+ * Paginated response for listing keyword restrictions
+ */
+export interface GetApiResponse_KeywordRestrictions {
+  status_message: string;
+  page?: number | null;
+  page_size?: number | null;
+  total_items?: number | null;
+  data: GetKeywordRestrictionResponse[];
+}
+
+/**
+ * Paginated response for listing kid-to-keyword-restriction mappings
+ */
+export interface GetApiResponse_KidKeywordRestrictions {
+  status_message: string;
+  page?: number | null;
+  page_size?: number | null;
+  total_items?: number | null;
+  data: GetKidKeywordRestrictionResponse[];
+}

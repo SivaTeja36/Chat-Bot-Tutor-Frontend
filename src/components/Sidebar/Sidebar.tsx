@@ -12,6 +12,7 @@ import { styled } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ChildCareIcon from "@mui/icons-material/ChildCare";
 import PersonIcon from "@mui/icons-material/Person";
+import BlockIcon from "@mui/icons-material/Block";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth"; // must return an object with logout
@@ -95,6 +96,14 @@ const Sidebar: React.FC = () => {
                 <PersonIcon sx={{ color: "#82B1FF" }} />
               </ListItemIcon>
               <ListItemText primary="Profile" />
+            </StyledListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <StyledListItemButton component={Link} to="/restrictions">
+              <ListItemIcon>
+                <BlockIcon sx={{ color: "#82B1FF" }} />
+              </ListItemIcon>
+              <ListItemText primary="Restrictions" />
             </StyledListItemButton>
           </ListItem>
         </List>

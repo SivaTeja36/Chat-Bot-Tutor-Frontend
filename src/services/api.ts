@@ -20,6 +20,9 @@ import {
   IGetChatResponse,
   IPostChatRequest,
   IChatResponse,
+  KeywordRestrictionRequest,
+  GetKeywordRestrictionResponse,
+  GetKidKeywordRestrictionResponse
 } from "../types/api";
 
 const API_BASE_URL = "http://localhost:8000"; // Update this to your backend URL
@@ -150,3 +153,82 @@ export const kidsAPI = {
 };
 
 export default api;
+
+
+
+/* ---------------- KEYWORD RESTRICTION MANAGEMENT ---------------- */
+export const keywordRestrictionsAPI = {
+  // Create a new keyword restriction
+  createRestriction: (data: KeywordRestrictionRequest) =>
+    api.post<ApiResponse<SuccessMessageResponse>>(
+      "/keyword-restrictions",
+      data
+    ),
+
+  // Get all keyword restrictions (with filters & pagination)
+  getAllRestrictions: (params?: {
+    search?: string;
+    filter_by?: string;
+    filter_values?: string;
+    sort_by?: string;
+    order_by?: "asc" | "desc";
+    page?: number;
+    page_size?: number;
+  }) =>
+    api.get<GetApiResponse<GetKeywordRestrictionResponse[]>>(
+      "/keyword-restrictions",
+      { params }
+    ),
+
+  // Get a single keyword restriction by ID
+  getRestrictionById: (restrictionId: number) =>
+    api.get<ApiResponse<GetKeywordRestrictionResponse>>(
+      `/keyword-restrictions/${restrictionId}`
+    ),
+
+  // Update a keyword restriction by ID
+  updateRestriction: (
+    restrictionId: number,
+    data: KeywordRestrictionRequest
+  ) =>
+    api.put<ApiResponse<SuccessMessageResponse>>(
+      `/keyword-restrictions/${restrictionId}`,
+      data
+    ),
+
+  // Map a keyword restriction to a kid
+  mapRestrictionToKid: (restrictionId: number, kidId: number) =>
+    api.post<ApiResponse<SuccessMessageResponse>>(
+      `/keyword-restrictions/${restrictionId}/kids?kid_id=${kidId}`
+    ),
+
+  // Get mapped restriction for kid
+  getMappedRestrictionForKid: (restrictionId: number, kidId: number) =>
+    api.get<ApiResponse<GetKidKeywordRestrictionResponse>>(
+      `/keyword-restrictions/${restrictionId}/kids?kid_id=${kidId}`
+    ),
+
+  // Update mapped restriction for kid
+  updateMappedRestrictionForKid: (restrictionId: number, kidId: number) =>
+    api.put<ApiResponse<SuccessMessageResponse>>(
+      `/keyword-restrictions/${restrictionId}/kids?kid_id=${kidId}`
+    ),
+
+  // Delete mapped restriction for kid
+  deleteMappedRestrictionForKid: (restrictionId: number, kidId: number) =>
+    api.delete<ApiResponse<SuccessMessageResponse>>(
+      `/keyword-restrictions/${restrictionId}/kids?kid_id=${kidId}`
+    ),
+
+  // Get all kids' keyword restriction mappings (paginated)
+  getAllKidsKeywordRestrictions: (params?: {
+    sort_by?: string;
+    order_by?: "asc" | "desc";
+    page?: number;
+    page_size?: number;
+  }) =>
+    api.get<GetApiResponse<GetKidKeywordRestrictionResponse[]>>(
+      "/keyword-restrictions/kids-keyword-restrictions",
+      { params }
+    ),
+};

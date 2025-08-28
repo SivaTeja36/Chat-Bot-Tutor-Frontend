@@ -30,6 +30,7 @@ import {
 } from "@mui/icons-material";
 import { authAPI } from "../../services/api";
 import Logo from "../../assets/chatbot.png";
+import BlockIcon from '@mui/icons-material/Block';
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 
 const drawerWidth = 280;
@@ -81,6 +82,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const menuItems = [
     { text: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
     { text: "Kids", icon: <ChildCare />, path: "/kids" },
+    { text: "Restrictions", icon: <BlockIcon />, path: "/restrictions" },
     { text: "Profile", icon: <Person />, path: "/profile" },
   ];
 

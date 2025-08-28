@@ -21,6 +21,7 @@ import SetPassword from './pages/SetPassword/SetPassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import KidsPage from './pages/Kids/KidsPage';
 import ProfilePage from './pages/Profile/ProfilePage';
+import RestrictionsPage from './pages/Restrictions/RestrictionsPage';
 
 // Handover related routes and wrappers
 import HandoverLayout from './pages/Kids/Handover/HandoverLayout';
@@ -64,6 +65,7 @@ function App() {
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/kids" element={<ProtectedRoute><KidsPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              <Route path="/restrictions" element={<ProtectedRoute><RestrictionsPage /></ProtectedRoute>} />
 
               {/* Nested handover routes, with auth protection */}
               <Route path="/handover/:kidId" element={<HandoverRoute />}>
