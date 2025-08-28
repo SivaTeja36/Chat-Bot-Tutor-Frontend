@@ -68,8 +68,14 @@ function ChatPage() {
 
   useEffect(() => { if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: "smooth" }); }, [messages, isLoading, isTutorTyping]);
   const handleGetChat = async () => {
-    try { const response = await kidsAPI.getChat(Number(kidId)); setChatData(response.data.data); }
-    catch (err) { console.error("Error:", err); }
+    try {
+      const response = await kidsAPI.getChat(Number(kidId));
+      setChatData(response.data.data);
+      return response.data.data; // Return the fetched data
+    } catch (err) {
+      console.error("Error:", err);
+      return []; // Return empty array on error
+    }
   };
 
   useEffect(() => {
@@ -110,8 +116,17 @@ function ChatPage() {
 
   const handleDeleteChat = async (chatId: number) => {
     if (!window.confirm("Do you want to delete this chat?")) return;
-    try { await kidsAPI.deleteKChat(Number(kidId), chatId); handleGetChat(); }
-    catch (err) { console.error("Error:", err); }
+    try {
+      await kidsAPI.deleteKChat(Number(kidId), chatId);
+      setMessages([]); // Clear messages on delete
+      const updatedChatData = await handleGetChat(); // Re-fetch chats and get the updated data
+      // After re-fetching, check if any chats remain and select the first one
+      if (updatedChatData && updatedChatData.length > 0) {
+        setSelectedChatId(updatedChatData[0].id);
+      } else {
+        setSelectedChatId(0); // No chats left, hide send bar
+      }
+    } catch (err) { console.error("Error:", err); }
   };
 
   const handleStoreId = (id: number) => { setSelectedChatId(id); };

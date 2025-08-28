@@ -82,7 +82,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const menuItems = [
     { text: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
     { text: "Kids", icon: <ChildCare />, path: "/kids" },
-    { text: "Restrictions", icon: <BlockIcon />, path: "/restrictions" },
+    { text: "Parent Control", icon: <BlockIcon />, path: "/restrictions" },
     { text: "Profile", icon: <Person />, path: "/profile" },
   ];
 
