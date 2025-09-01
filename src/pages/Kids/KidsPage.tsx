@@ -105,11 +105,12 @@ const Kids = () => {
     }
   };
 
+  // Only this changed: open in new tab, card size untouched!
   const handleHandover = (kidId: number) => {
-    navigate(`/handover/${kidId}/chat`);
+    window.open(`/handover/${kidId}/chat`, "_blank", "noopener");
   };
 
-  // Card styles helper
+  // Card styles helper - unchanged!!
   const getCardSX = () => ({
     boxShadow: "0.75",
     border: "1px solid #efefef",
@@ -153,7 +154,6 @@ const Kids = () => {
               <Delete fontSize="small" />
             </IconButton>
           </Box>
-
           <CardContent sx={{ pb: 2 }}>
             <Box className="flex items-center gap-3 mb-4">
               <Avatar
@@ -266,7 +266,6 @@ const Kids = () => {
               </Typography>
               <Box className="flex flex-wrap gap-1">{/* Placeholder */}</Box>
             </Box>
-            {/* FIXED: Handover Button Centered */}
             <Stack direction="row" justifyContent="center" gap={1}>
               <PmsButton
                 buttonVarient="contained"
@@ -331,7 +330,6 @@ const Kids = () => {
           ))}
         </AnimatePresence>
       </Grid>
-
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
@@ -406,5 +404,4 @@ const Kids = () => {
     </Container>
   );
 };
-
 export default Kids;
